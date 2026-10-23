@@ -18,7 +18,7 @@ const validate = ({ name, email, password, confirm }) => {
   if (!name.trim()) errors.name = "Enter your full name";
   if (!isEmailValid(email)) errors.email = "Enter a valid email address";
   if (!isPasswordValid(password))
-    errors.password = "Password must start with a capital letter, be 8–16 characters, and include a symbol";
+    errors.password = "Password must include a capital letter, be 8–16 characters, and include a symbol";
   if (confirm !== password) errors.confirm = "Passwords do not match";
   return errors;
 };

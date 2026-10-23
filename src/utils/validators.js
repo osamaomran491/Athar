@@ -1,9 +1,3 @@
-/* ------------------------------------------------------------------
-   قواعد الباسورد (عدّل هنا بس):
-   1) أول حرف كابيتال
-   2) الطول من 8 إلى 16
-   3) لازم يحتوي على رمز واحد على الأقل
-------------------------------------------------------------------- */
 export const PASSWORD_MIN = 8;
 export const PASSWORD_MAX = 16;
 
@@ -15,8 +9,8 @@ export const passwordRules = [
   },
   {
     id: "capital",
-    label: "Starts with a capital letter",
-    test: (p) => /^[A-Z]/.test(p),
+    label: "Includes at least one capital letter",
+    test: (p) => /[A-Z]/.test(p),
   },
   {
     id: "symbol",
