@@ -1,20 +1,11 @@
-/* ==================================================================
-   AUTH SERVICE  (نسخة تجريبية بتخزن في المتصفح)
-   -----------------------------------------------------------------
-   دلوقتي الحسابات بتتحفظ في localStorage عشان تقدر تجرّب:
-     - تسجّل حساب في /register
-     - تدخل بنفس الإيميل والباسورد في /login
-     - لو الباسورد غلط → "Incorrect password"
-   لما يبقى عندك Backend: بدّل جسم كل function هنا بـ fetch/axios
-   وباقي الصفحات مش هتتغير.
-================================================================== */
+
 const USERS_KEY = "Athar_users";
 const SESSION_KEY = "Athar_session";
 
 export class AuthError extends Error {
   constructor(field, message) {
     super(message);
-    this.field = field; // اسم الحقل اللي فيه المشكلة (email / password)
+    this.field = field; 
   }
 }
 
@@ -64,7 +55,7 @@ export async function loginUser({ email, password, remember }) {
   return saveSession(user, remember);
 }
 
-/** profile = { name, email, picture } جاية من Google */
+/** profile = { name, email, picture }  */
 export async function loginWithGoogle(profile) {
   const users = readUsers();
   const key = normalize(profile.email);
