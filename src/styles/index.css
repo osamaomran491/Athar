@@ -1,0 +1,7 @@
+/* ترتيب الاستيراد مهم */
+@import "./tokens.css";
+@import "./base.css";
+@import "./layout.css";
+@import "./form.css";
+@import "./animations.css";
+@import "./loader.css";

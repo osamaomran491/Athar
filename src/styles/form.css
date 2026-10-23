@@ -1,0 +1,238 @@
+/* ==================================================================
+   FORM — العناوين، الحقول، الأزرار، الفاصل
+================================================================== */
+.form { display: flex; flex-direction: column; }
+
+/* ---------- العنوان ---------- */
+.form__head { margin-top: calc(2 * var(--px)); }
+.form__title {
+  font-size: calc(var(--title-size) * var(--px));
+  line-height: calc(39 * var(--px));
+  font-weight: 700;
+  color: var(--c-navy);
+}
+.form__subtitle {
+  margin-top: calc(13 * var(--px));
+  font-size: calc(var(--sub-size) * var(--px));
+  line-height: calc(30 * var(--px));
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+/* ---------- الحقول ---------- */
+.form__fields {
+  margin-top: calc(33 * var(--px));
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-fields);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  height: var(--field-h);
+  padding: 0 calc(22 * var(--px));
+  background: var(--c-field-bg);
+  border: calc(2 * var(--px)) solid var(--c-field-border);
+  border-radius: var(--radius-field);
+  box-shadow: 0 calc(2 * var(--px)) calc(6 * var(--px)) rgba(31, 58, 86, .06);
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.field:focus-within {
+  border-color: var(--c-gold);
+  background: #fff;
+  box-shadow: 0 0 0 calc(4 * var(--px)) rgba(172, 143, 64, .18);
+}
+.field--error { border-color: var(--c-error); }
+
+.field__icon {
+  flex-shrink: 0;
+  width: calc(28 * var(--px));
+  height: calc(28 * var(--px));
+  color: var(--c-navy);
+}
+.field__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 calc(14 * var(--px));
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: calc(24 * var(--px));
+  color: var(--c-navy);
+}
+.field__input::placeholder { color: var(--c-muted); opacity: .9; }
+
+.field__eye {
+  display: grid; place-items: center;
+  background: none; border: 0;
+  color: var(--c-navy);
+}
+.field__eye svg { width: calc(24 * var(--px)); height: calc(24 * var(--px)); }
+.field__eye:hover { color: var(--c-gold); }
+
+.field__error {
+  margin: calc(8 * var(--px)) calc(4 * var(--px)) 0;
+  font-size: calc(16 * var(--px));
+  color: var(--c-error);
+  animation: fadeUp .25s ease both;
+}
+
+/* ---------- Password checklist ---------- */
+.checklist {
+  list-style: none;
+  margin: calc(10 * var(--px)) calc(4 * var(--px)) 0;
+  display: grid;
+  gap: calc(4 * var(--px));
+  animation: fadeUp .3s ease both;
+}
+.checklist__item {
+  display: flex; align-items: center; gap: calc(8 * var(--px));
+  font-size: calc(16 * var(--px));
+  color: var(--c-muted);
+  transition: color .25s;
+}
+.checklist__item svg { width: calc(16 * var(--px)); height: calc(16 * var(--px)); }
+.checklist__item.is-ok { color: var(--c-ok); }
+.checklist__item.is-ok svg { animation: pop .3s ease; }
+
+/* ---------- الأزرار ---------- */
+.btn {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  gap: calc(10 * var(--px));
+  border-radius: var(--radius-pill);
+  transition: background .2s, transform .15s, box-shadow .2s, border-color .2s;
+}
+.btn svg { width: calc(24 * var(--px)); height: calc(24 * var(--px)); }
+
+.btn--gold {
+  height: var(--field-h);
+  margin-top: var(--gap-fields);
+  border: 0;
+  background: var(--c-gold);
+  color: #fff;
+  font-size: calc(24 * var(--px));
+  font-weight: 500;
+}
+.btn--gold:hover {
+  background: var(--c-gold-hover);
+  transform: translateY(calc(-2 * var(--px)));
+  box-shadow: 0 calc(10 * var(--px)) calc(24 * var(--px)) rgba(172, 143, 64, .35);
+}
+.btn--gold:active { transform: none; }
+/* لمعة بتعدي على الزرار */
+.btn--gold::after {
+  content: "";
+  position: absolute; top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.45), transparent);
+  transform: skewX(-20deg);
+}
+.btn--gold:hover::after { animation: shine .8s ease; }
+
+.btn--outline {
+  height: var(--google-h);
+  background: var(--c-field-bg);
+  border: calc(2 * var(--px)) solid var(--c-field-border);
+  color: var(--c-text);
+  font-size: calc(20.5 * var(--px));
+  font-weight: 500;
+  gap: calc(14 * var(--px));
+}
+.btn--outline svg { width: calc(22 * var(--px)); height: calc(22 * var(--px)); }
+.btn--outline:hover { background: #fff; border-color: var(--c-divider); }
+
+/* ---------- Divider ---------- */
+.divider {
+  width: calc(436 * var(--px));
+  margin: calc(30 * var(--px)) auto calc(31 * var(--px));
+  display: flex; align-items: center; gap: calc(24 * var(--px));
+  font-size: calc(26 * var(--px));
+  line-height: calc(34 * var(--px));
+  color: var(--c-text);
+}
+.divider::before, .divider::after {
+  content: ""; flex: 1; height: calc(1.5 * var(--px)); background: var(--c-divider);
+}
+
+/* ---------- Already have an account? ---------- */
+.form__switch {
+  margin-top: calc(26 * var(--px));
+  text-align: center;
+  font-size: calc(20 * var(--px));
+  line-height: calc(33 * var(--px));
+  color: var(--c-text);
+}
+.form__switch a { margin-left: calc(6 * var(--px)); color: var(--c-gold-link); font-weight: 600; }
+.form__switch a:hover { text-decoration: underline; }
+
+
+/* ==================================================================
+   LOGIN / CENTER variant + عناصر إضافية
+================================================================== */
+.form__head--center { text-align: center; }
+
+/* رسائل عامة فوق زرار الفورم */
+.form__alert, .form__notice {
+  margin-top: calc(14 * var(--px));
+  padding: calc(10 * var(--px)) calc(16 * var(--px));
+  border-radius: var(--radius-field);
+  font-size: calc(17 * var(--px));
+  animation: fadeUp .25s ease both;
+}
+.form__alert  { color: var(--c-error); background: rgba(192, 57, 43, .08); }
+.form__notice { color: var(--c-ok);    background: rgba(63, 143, 91, .10); }
+
+/* ---- Login: مسافات من Figma ---- */
+.form--login .form__head          { margin-top: calc(30 * var(--px)); }
+.form--login .form__subtitle      { margin-top: calc(6 * var(--px)); }
+.form--login .form__fields        { margin-top: calc(71 * var(--px)); gap: calc(22 * var(--px)); }
+.form--login .btn--gold           { margin-top: calc(35 * var(--px)); }
+.form--login .divider             { width: calc(436 * var(--px)); margin: calc(32 * var(--px)) auto calc(33 * var(--px)); }
+.form--login .form__switch        { margin-top: calc(28 * var(--px)); }
+
+/* ---- Remember me + Forget password ---- */
+.form__options {
+  margin-top: calc(31 * var(--px));
+  display: flex; align-items: center; justify-content: space-between;
+  height: calc(30 * var(--px));
+  margin-right: calc(-4 * var(--px));      /* في Figma اللينك بيعدّي حافة الحقل بـ 4px */
+}
+.form__forgot {
+  font-size: calc(var(--opt-link-size) * var(--px));
+  font-weight: 600;
+  color: var(--c-gold-link);
+}
+.form__forgot:hover { text-decoration: underline; }
+
+.check {
+  display: inline-flex; align-items: center; gap: calc(10 * var(--px));
+  margin-left: calc(3 * var(--px));
+  font-size: calc(var(--opt-size) * var(--px));
+  color: var(--c-text);
+  cursor: pointer;
+}
+.check__input { position: absolute; opacity: 0; pointer-events: none; }
+.check__box {
+  position: relative;
+  width: calc(22 * var(--px)); height: calc(22 * var(--px));
+  border: calc(2 * var(--px)) solid var(--c-text);
+  border-radius: calc(5 * var(--px));
+  transition: background .2s, border-color .2s;
+}
+.check__box::after {   /* علامة الصح */
+  content: ""; position: absolute;
+  left: 28%; top: 6%; width: 32%; height: 58%;
+  border: solid #fff; border-width: 0 calc(2.5 * var(--px)) calc(2.5 * var(--px)) 0;
+  transform: rotate(45deg) scale(0); transition: transform .18s ease;
+}
+.check__input:checked + .check__box { background: var(--c-gold); border-color: var(--c-gold); }
+.check__input:checked + .check__box::after { transform: rotate(45deg) scale(1); }
+.check__input:focus-visible + .check__box { box-shadow: 0 0 0 calc(4 * var(--px)) rgba(172,143,64,.3); }
+
+.btn:disabled { opacity: .7; cursor: progress; }

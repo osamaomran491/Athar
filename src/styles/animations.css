@@ -1,0 +1,29 @@
+/* ==================================================================
+   ANIMATIONS
+   - .reveal : ظهور العناصر واحد ورا التاني (ترتيبها من style="--i: N")
+   - .shake  : اهتزاز الحقل لما فيه error
+   - صورة المعبد: ظهور ناعم (من غير zoom عشان التمثال يفضل كامل)
+================================================================== */
+.reveal {
+  opacity: 0;
+  animation: fadeUp .6s cubic-bezier(.22, .8, .3, 1) forwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+.shake { animation: shake .4s ease; }
+
+.auth__bg-img { animation: bgIn 1.2s ease both; }   /* ظهور ناعم بدون zoom */
+
+@keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes shake   { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-7px); } 40%,80% { transform: translateX(7px); } }
+@keyframes pop     { 0% { transform: scale(.5); } 70% { transform: scale(1.3); } 100% { transform: scale(1); } }
+@keyframes shine   { to { left: 130%; } }
+@keyframes bgIn    { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal { opacity: 1; }
+}
+
+/* الصفحة متظهرش (animation واقف) وشاشة اللوجو شغالة */
+[data-loader="on"] .reveal { animation-play-state: paused; }

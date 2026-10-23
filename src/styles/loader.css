@@ -1,0 +1,53 @@
+/* ==================================================================
+   LOADER — شاشة التحميل (اللوجو بيتملي من تحت لفوق)
+   التوقيتات بتيجي من src/components/loader/loaderConfig.js
+================================================================== */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--c-bg);
+  animation: loaderFadeIn var(--t-overlay-in) ease both;
+}
+.loader--instant { animation: none; }              /* أول تحميل: الشاشة موجودة من أول لحظة */
+.loader[data-phase="out"] {
+  animation: loaderFadeOut var(--t-out-dur) ease forwards;
+  pointer-events: none;
+}
+
+/* حجم اللوجو (380px في Figma - الصورة فيها هوامش شفافة) */
+.loader__logo {
+  position: relative;
+  width: min(calc(380 * var(--px)), 80vw);
+  aspect-ratio: 1;
+}
+.loader__logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+
+/* 1) اللوجو الباهت */
+.loader__ghost {
+  opacity: 0;
+  filter: grayscale(.5);
+  animation: ghostIn var(--t-ghost-dur) ease var(--t-ghost-delay) forwards;
+}
+
+/* 2) التعبئة: حافة مائلة بتطلع من تحت لفوق (السطر المائل بيعدّي على حدود اللوجو من 80% لـ 24% من الارتفاع) */
+.loader__fill {
+  clip-path: polygon(0 100%, 100% 100%, 100% 75%, 0 105%);
+  animation: logoFill var(--t-fill-dur) cubic-bezier(.55, .1, .25, 1) var(--t-fill-delay) forwards;
+}
+
+@keyframes loaderFadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes loaderFadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes ghostIn       { from { opacity: 0; } to { opacity: .18; } }
+@keyframes logoFill {
+  from { clip-path: polygon(0 100%, 100% 100%, 100% 75%, 0 105%); }
+  to   { clip-path: polygon(0 100%, 100% 100%, 100% -2%, 0 28%); }
+}
+
+/* لو المستخدم مفعّل reduced motion: اللوجو يظهر كامل من غير تعبئة */
+@media (prefers-reduced-motion: reduce) {
+  .loader__fill  { clip-path: none; }
+  .loader__ghost { opacity: 0; }
+}
