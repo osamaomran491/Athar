@@ -3,7 +3,6 @@ import AuthLayout from "../components/layout/AuthLayout";
 import Button from "../components/ui/Button";
 import { getSession, logout } from "../services/authService";
 
-// صفحة مؤقتة بتأكد إن الدخول نجح. استبدلها بالـ Dashboard الحقيقي.
 export default function Dashboard() {
   const navigate = useNavigate();
   const session = getSession();
@@ -17,7 +16,9 @@ export default function Dashboard() {
           <p className="form__subtitle">You are signed in as {session.email}</p>
         </header>
         <div className="reveal" style={{ "--i": 1 }}>
-          <Button type="button" onClick={() => { logout(); navigate("/login"); }}>Log out</Button>
+          <Button type="button" onClick={() => { logout(); window.location.assign(`${import.meta.env.BASE_URL}login`); }}>
+            Log out
+          </Button>
         </div>
       </div>
     </AuthLayout>

@@ -74,7 +74,7 @@ export default function Login() {
         <div className="reveal" style={{ "--i": 6 }}><GoogleButton onError={setGoogleError} /></div>
 
         <p className="form__switch reveal" style={{ "--i": 7 }}>
-          Don’t have an account? <Link to="/register">Create one</Link>
+          Don’t have an account? <Link to="/register" reloadDocument>Create one</Link>
         </p>
       </form>
     </AuthLayout>
