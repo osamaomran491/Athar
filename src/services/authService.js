@@ -8,8 +8,8 @@
    لما يبقى عندك Backend: بدّل جسم كل function هنا بـ fetch/axios
    وباقي الصفحات مش هتتغير.
 ================================================================== */
-const USERS_KEY = "ather_users";
-const SESSION_KEY = "ather_session";
+const USERS_KEY = "Athar_users";
+const SESSION_KEY = "Athar_session";
 
 export class AuthError extends Error {
   constructor(field, message) {

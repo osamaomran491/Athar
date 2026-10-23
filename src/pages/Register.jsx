@@ -32,7 +32,7 @@ export default function Register() {
   });
 
   const onValid = async (data) => {
-    await registerUser(data); // ← استبدلها بـ API حقيقي لاحقًا
+    await registerUser(data); 
     await showLoader({ onCovered: () => navigate("/login", { state: { registered: true, email: data.email } }) });
   };
 
@@ -42,7 +42,7 @@ export default function Register() {
         <header className="form__head reveal" style={{ "--i": 0 }}>
           <h1 className="form__title">Create Account</h1>
           <p className="form__subtitle">
-            Join ATHER and start managing the museum<br />and your robot fleet
+            Join Athar and start managing the museum<br />and your robot fleet
           </p>
         </header>
 
