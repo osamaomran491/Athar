@@ -14,7 +14,9 @@ export default function GoogleButton({ onError = () => {} }) {
   });
 
   const handleClick = () => {
-        if (!GOOGLE_CONFIGURED) return;
+    if (!GOOGLE_CONFIGURED) {
+      return onError("SOON");
+    }
     startGoogle();
   };
 
