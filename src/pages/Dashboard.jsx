@@ -2,7 +2,7 @@
 // Route: /dashboard
 // Main page after login: greeting, three stat cards and the robot status list.
 // Redirects to /login when nobody is signed in.
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
 import RobotStatusCard from "../components/dashboard/RobotStatusCard";
@@ -18,6 +18,7 @@ function getGreeting() {
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const session = getSession();
   if (!session) return <Navigate to="/login" replace />;
 
@@ -47,7 +48,8 @@ export default function Dashboard() {
         ))}
       </section>
 
-      <RobotStatusCard robots={robots} className="reveal" style={{ "--i": 4 }} />
+      <RobotStatusCard robots={robots} onOpen={() => navigate("/robots")}
+        onSelect={(robot) => navigate(`/robots/${robot.id}`)} className="reveal" style={{ "--i": 4 }} />
     </DashboardLayout>
   );
 }
