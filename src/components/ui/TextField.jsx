@@ -4,8 +4,9 @@ import { LuEye, LuEyeOff } from "react-icons/lu";
 /**
  * Input واحد: أيقونة على الشمال + (لو password) زرار العين.
  * shakeTick: كل ما يزيد والحقل فيه error بيهتز.
+ * hideOnPaste: لو الحقل password واتعمله paste وهو ظاهر، بيرجع مخفي (نقط) تلقائي.
  */
-export default function TextField({ icon: Icon, type = "text", error, shakeTick = 0, ...inputProps }) {
+export default function TextField({ icon: Icon, type = "text", error, shakeTick = 0, hideOnPaste = false, ...inputProps }) {
   const [visible, setVisible] = useState(false);
   const boxRef = useRef(null);
   const isPassword = type === "password";
@@ -22,7 +23,12 @@ export default function TextField({ icon: Icon, type = "text", error, shakeTick 
     <div>
       <div ref={boxRef} className={`field ${error ? "field--error" : ""}`}>
         <Icon className="field__icon" />
-        <input className="field__input" type={isPassword && visible ? "text" : type} {...inputProps} />
+        <input
+          className="field__input"
+          type={isPassword && visible ? "text" : type}
+          onPaste={hideOnPaste ? () => setVisible(false) : undefined}
+          {...inputProps}
+        />
         {isPassword && (
           <button
             type="button"

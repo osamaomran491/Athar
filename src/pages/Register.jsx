@@ -63,7 +63,7 @@ export default function Register() {
           </div>
           <div className="reveal" style={{ "--i": 4 }}>
             <TextField icon={LuLockKeyhole} type="password" name="confirm" placeholder="Confirm Password"
-              autoComplete="new-password" maxLength={PASSWORD_MAX}
+              autoComplete="new-password" maxLength={PASSWORD_MAX} hideOnPaste
               value={values.confirm} onChange={onChange} error={errors.confirm} shakeTick={shakeTick} />
           </div>
         </div>

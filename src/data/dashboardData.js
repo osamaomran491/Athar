@@ -9,7 +9,7 @@ export const navItems = [
   { label: "Dashboard", icon: LuHouse, to: "/dashboard" },
   { label: "Museums", icon: LuLandmark, to: null },
   { label: "Artifacts", icon: LuHexagon, to: null },
-  { label: "Robots", icon: RobotFaceIcon, to: null },
+  { label: "Robots", icon: RobotFaceIcon, to: "/robots" },
   { label: "Bookings", icon: LuCalendarDays, to: null },
   { label: "Setting", icon: LuSettings, to: null },
 ];

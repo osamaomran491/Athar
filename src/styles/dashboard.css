@@ -1,3 +1,10 @@
+/* dashboard.css
+   Everything for the dashboard page: sidebar, top bar, stat cards and the robot list.
+   Sizes follow the same rule as the rest of the project: calc(N * var(--px)) where N is
+   the pixel value in the 1920x1080 Figma frame.
+   Used by: components/layout/DashboardLayout.jsx and components/dashboard/* */
+
+/* ---------- Dashboard colors (only used here) ---------- */
 .dash {
   --d-bg: #faf8f5;          /* page background */
   --d-line: #e5e0d9;        /* thin lines (sidebar edge, top bar edge, profile divider) */
@@ -209,6 +216,9 @@
   margin: calc(48 * var(--px)) calc(57 * var(--px)) 0 auto;
   padding: calc(22 * var(--px)) calc(32 * var(--px)) calc(27 * var(--px));
 }
+/* same panel on the Robots page: left side, under the page title */
+.robot-panel--page { margin: calc(43 * var(--px)) 0 0; }
+
 .robot-panel__title {
   font-size: calc(var(--panel-title-size) * var(--px));
   line-height: calc(36 * var(--px));
@@ -294,5 +304,5 @@
   .dash__stats { flex-direction: column; gap: 20px; margin: 24px 0 0; }
   .stat-card { width: 100%; }
   .stat-card--raised { translate: none; }
-  .robot-panel { width: 100%; margin: 24px 0 0; }
+  .robot-panel, .robot-panel--page { width: 100%; margin: 24px 0 0; }
 }
