@@ -1,6 +1,3 @@
-// dashboardData.js
-// Temporary data for the dashboard page. Replace these arrays with API calls later,
-// the components only care about the shape of each item.
 import { LuHouse, LuLandmark, LuHexagon, LuCalendarDays, LuSettings } from "react-icons/lu";
 import RobotFaceIcon from "../components/dashboard/RobotFaceIcon";
 
