@@ -1,6 +1,10 @@
+// Sidebar.jsx
+// Left menu of the dashboard: logo on top, then the links from data/dashboardData.js.
+// A link with a route becomes a NavLink (highlighted when it is the current page).
+// A link without a route yet is a plain button, so nothing breaks while the page is missing.
 import { NavLink } from "react-router-dom";
 import Logo from "../ui/Logo";
-import { navItems } from "../../Data/dashboardData";
+import { navItems } from "../../data/dashboardData";
 
 export default function Sidebar() {
   return (

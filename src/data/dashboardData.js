@@ -1,3 +1,6 @@
+// dashboardData.js
+// Temporary data for the dashboard page. Replace these arrays with API calls later,
+// the components only care about the shape of each item.
 import { LuHouse, LuLandmark, LuHexagon, LuCalendarDays, LuSettings } from "react-icons/lu";
 import RobotFaceIcon from "../components/dashboard/RobotFaceIcon";
 
@@ -8,22 +11,19 @@ export const navItems = [
   { label: "Artifacts", icon: LuHexagon, to: null },
   { label: "Robots", icon: RobotFaceIcon, to: null },
   { label: "Bookings", icon: LuCalendarDays, to: null },
-  { label: "Settings", icon: LuSettings, to: null },
+  { label: "Setting", icon: LuSettings, to: null },
 ];
 
-// The three cards at the top
+// The three cards at the top (value / change stay empty until they are connected to the API)
 export const stats = [
-  { id: "visitors", label: "Total Visitors", value: "1,248", change: "+12%" },
-  { id: "bookings", label: "Total Bookings", value: "432", change: "+6%" },
-  { id: "revenue", label: "Revenue", value: "EGP 87,450", change: "+12%" },
+  { id: "visitors", label: "Total Visitors", value: "", change: "" },
+  { id: "bookings", label: "Total Bookings", value: "", change: "" },
+  { id: "revenue", label: "Revenue", value: "", change: "" },
 ];
 
-// Robot list. status is one of: "tour" | "charging" | "standby"
+// Robot list. status is one of: "tour" | "charging" | "standby" (leave it null until it is connected)
 export const robots = [
-  { id: 1, name: "RoboGuide 01", status: "tour" },
-  { id: 2, name: "RoboGuide 02", status: "charging" },
-  { id: 3, name: "RoboGuide 03", status: "standby" },
-  { id: 4, name: "RoboGuide 04", status: "tour" },
+  { id: 1, name: "RoboGuide 01", status: null },
 ];
 
 // Text shown inside each status badge

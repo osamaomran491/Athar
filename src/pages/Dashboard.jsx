@@ -1,8 +1,12 @@
+// Dashboard.jsx
+// Route: /dashboard
+// Main page after login: greeting, three stat cards and the robot status list.
+// Redirects to /login when nobody is signed in.
 import { Navigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
-import RobotStatusCard from "../components/DashBoard/RobotStatusCard";
-import { robots, stats } from "../Data/dashboardData";
+import RobotStatusCard from "../components/dashboard/RobotStatusCard";
+import { robots, stats } from "../data/dashboardData";
 import { getSession, logout } from "../services/authService";
 
 // "Good Morning" / "Good Afternoon" / "Good Evening" depending on the hour
