@@ -1,7 +1,3 @@
-// Dashboard.jsx
-// Route: /dashboard
-// Main page after login: greeting, three stat cards and the robot status list.
-// Redirects to /login when nobody is signed in.
 import { Navigate, useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
@@ -30,7 +26,7 @@ export default function Dashboard() {
   };
 
   return (
-    <DashboardLayout userName={session.name || "Admin"} onLogout={handleLogout}>
+    <DashboardLayout userName={session.name || "Admin"} userPicture={session.picture} onLogout={handleLogout}>
       <header className="dash__greeting reveal" style={{ "--i": 0 }}>
         <h1 className="dash__title">{getGreeting()}, {firstName}</h1>
         <p className="dash__subtitle">Here’s Whats happening at your museum today.</p>
@@ -38,13 +34,14 @@ export default function Dashboard() {
 
       <section className="dash__stats">
         {stats.map((stat, index) => (
-          <StatCard
-            key={stat.id}
-            {...stat}
-            // in the design the third card sits 4px higher than the other two
-            className={`reveal ${index === 2 ? "stat-card--raised" : ""}`}
-            style={{ "--i": index + 1 }}
-          />
+          // the wrapper plays the fade-in (.reveal), the card inside plays the hover lift
+          <div key={stat.id} className="reveal" style={{ "--i": index + 1 }}>
+            <StatCard
+              {...stat}
+              // in the design the third card sits 4px higher than the other two
+              className={index === 2 ? "stat-card--raised" : ""}
+            />
+          </div>
         ))}
       </section>
 

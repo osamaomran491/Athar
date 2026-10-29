@@ -16,7 +16,7 @@ import { PASSWORD_MAX, isEmailValid, isPasswordValid } from "../utils/validators
 const validate = ({ name, email, password, confirm }) => {
   const errors = {};
   if (!name.trim()) errors.name = "Enter your full name";
-  if (!isEmailValid(email)) errors.email = "Enter a valid email address";
+  if (!isEmailValid(email)) errors.email = "Enter a valid email (at least 4 characters before @)";
   if (!isPasswordValid(password))
     errors.password = "Password must include a capital letter, be 8–16 characters, and include a symbol";
   if (confirm !== password) errors.confirm = "Passwords do not match";

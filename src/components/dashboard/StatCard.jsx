@@ -1,24 +1,28 @@
-// StatCard.jsx
-// One white card with a number, like "Total Visitors 1,248 +12% From last week".
-// While value / change are empty (not connected yet) only the title is shown.
-// className / style are passed through so the page can add .reveal and its --i delay.
-export default function StatCard({ label, value, change, className = "", style }) {
+import { motion } from "framer-motion";
+import { LuArrowUpRight, LuArrowDownRight } from "react-icons/lu";
+
+export default function StatCard({ label, value, change, className = "" }) {
+  // a change that starts with "-" is shown as a drop (red arrow down)
+  const isDrop = typeof change === "string" && change.trim().startsWith("-");
+  const TrendIcon = isDrop ? LuArrowDownRight : LuArrowUpRight;
+
   return (
-    <article className={`card stat-card ${className}`} style={style}>
+    <motion.article
+      className={`glass-card stat-card ${className}`}
+      whileHover={{ y: -5 }}
+      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+    >
       <h2 className="stat-card__label">{label}</h2>
 
+      {/* the number and the weekly change only show when there is real data */}
       {value && <p className="stat-card__value">{value}</p>}
-
       {change && (
-        <p className="stat-card__trend">
-          {/* green triangle */}
-          <svg className="stat-card__arrow" viewBox="0 0 14 12" aria-hidden="true">
-            <polygon points="7,0 14,12 0,12" />
-          </svg>
+        <p className={`stat-card__trend ${isDrop ? "stat-card__trend--down" : ""}`}>
+          <TrendIcon className="stat-card__arrow" />
           <span className="stat-card__change">{change}</span>
           <span className="stat-card__note">From last week</span>
         </p>
       )}
-    </article>
+    </motion.article>
   );
 }

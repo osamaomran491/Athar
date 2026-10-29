@@ -20,4 +20,4 @@ export const passwordRules = [
 ];
 
 export const isPasswordValid = (p) => passwordRules.every((rule) => rule.test(p));
-export const isEmailValid = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+export const isEmailValid = (e) => /^[^\s@]{4,}@[^\s@]+\.[^\s@]{2,}$/.test(e);

@@ -16,14 +16,14 @@ export const navItems = [
 
 // The three cards at the top (value / change stay empty until they are connected to the API)
 export const stats = [
-  { id: "visitors", label: "Total Visitors", value: "", change: "" },
-  { id: "bookings", label: "Total Bookings", value: "", change: "" },
-  { id: "revenue", label: "Revenue", value: "", change: "" },
+  { id: "visitors", label: "Total Visitors", value: "SOON", change: "SOON" },
+  { id: "bookings", label: "Total Bookings", value: "SOON", change: "SOON" },
+  { id: "revenue", label: "Revenue", value: "SOON", change: "SOON" },
 ];
 
 // Robot list. status is one of: "tour" | "charging" | "standby" (leave it null until it is connected)
 export const robots = [
-  { id: 1, name: "RoboGuide 01", status: null },
+  { id: 1, name: "RoboGuide 1", status: "Offline" },
 ];
 
 // Text shown inside each status badge

@@ -1,10 +1,8 @@
-// Topbar.jsx
-// Top bar of the dashboard: search box in the middle, user info + avatar on the right.
-// Clicking the avatar (only the picture) opens a small menu with "Log out".
 import { useEffect, useRef, useState } from "react";
-import { LuSearch, LuCircleUser, LuLogOut } from "react-icons/lu";
+import { LuSearch, LuLogOut, LuMenu, LuX } from "react-icons/lu";
+import UserAvatar from "./UserAvatar";
 
-export default function Topbar({ name, role = "Museum Staff", onLogout }) {
+export default function Topbar({ name, role = "Museum Staff", picture, onLogout, navOpen, onMenuClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const avatarRef = useRef(null);
 
@@ -19,32 +17,46 @@ export default function Topbar({ name, role = "Museum Staff", onLogout }) {
 
   return (
     <header className="topbar">
+      {/* shows only on phones: opens / closes the sidebar */}
+      <button
+        type="button"
+        className="topbar__menu-btn"
+        onClick={onMenuClick}
+        aria-label={navOpen ? "Close menu" : "Open menu"}
+        aria-expanded={navOpen}
+      >
+        {navOpen ? <LuX /> : <LuMenu />}
+      </button>
+
       <label className="search">
         <LuSearch className="search__icon" />
         <input className="search__input" type="search" placeholder="Search anything..." />
       </label>
 
       <div className="profile">
-        <span className="profile__info">
-          <span className="profile__name">{name}</span>
-          <span className="profile__role">{role}</span>
-        </span>
-        <span className="profile__divider" />
-
         {/* only the avatar opens the menu */}
-        <div className="profile__avatar-box" ref={avatarRef}>
+        <div className="profile__avatar-wrap" ref={avatarRef}>
           <button
             type="button"
             className="profile__toggle"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label="User menu"
+            aria-label="Account menu"
             aria-expanded={menuOpen}
           >
-            <LuCircleUser className="profile__avatar" />
+            <UserAvatar name={name} picture={picture} />
           </button>
 
           {menuOpen && (
             <div className="profile__menu">
+              {/* who is signed in */}
+              <div className="profile__menu-head">
+                <UserAvatar name={name} picture={picture} className="avatar--small" />
+                <div className="profile__menu-text">
+                  <p className="profile__name">{name}</p>
+                  <p className="profile__role">{role}</p>
+                </div>
+              </div>
+
               <button type="button" className="profile__menu-item" onClick={onLogout}>
                 <LuLogOut /> Log out
               </button>

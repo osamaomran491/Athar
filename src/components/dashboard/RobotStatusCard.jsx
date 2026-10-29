@@ -1,14 +1,10 @@
-// RobotStatusCard.jsx
-// The "Robot Status" panel: one row per robot with its name, a colored status badge and an arrow.
-// onOpen() is called when the panel is clicked anywhere (dashboard: opens the Robots page).
-// onSelect(robot) is called when a row is clicked (use it later to open one robot).
 import RobotIcon from "./RobotIcon";
 import { statusLabels } from "../../data/dashboardData";
 
 export default function RobotStatusCard({ robots, onOpen, onSelect, className = "", style }) {
   return (
     <section
-      className={`card robot-panel ${onOpen ? "robot-panel--link" : ""} ${className}`}
+      className={`glass-card robot-panel ${onOpen ? "robot-panel--link" : ""} ${className}`}
       style={style}
       onClick={onOpen}
     >
@@ -23,10 +19,11 @@ export default function RobotStatusCard({ robots, onOpen, onSelect, className = 
               }}>
               <RobotIcon className="robot-row__icon" />
               <span className="robot-row__name">{robot.name}</span>
-              {/* the badge appears only when the robot has a status (not connected yet = no badge) */}
+              <span className="robot-row__status">
               {robot.status && (
                 <span className={`badge badge--${robot.status}`}>{statusLabels[robot.status]}</span>
               )}
+              </span>
               <svg className="robot-row__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <polyline points="2,2 18,10 2,18" />
               </svg>

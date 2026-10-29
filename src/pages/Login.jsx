@@ -15,7 +15,7 @@ import { isEmailValid } from "../utils/validators";
 
 const validate = ({ email, password }) => {
   const errors = {};
-  if (!isEmailValid(email)) errors.email = "Enter a valid email address";
+  if (!isEmailValid(email)) errors.email = "Enter a valid email (at least 4 characters before @)";
   if (!password) errors.password = "Enter your password";
   return errors;
 };
