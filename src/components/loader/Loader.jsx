@@ -1,11 +1,6 @@
 import logo3x from "../../assets/images/logo@3x.png";
 import { TIMINGS } from "./loaderConfig";
 
-/**
- * شاشة التحميل:
- *  - الطبقة الباهتة (ghost) = اللوجو بشفافية قليلة
- *  - طبقة التعبئة (fill)   = نفس اللوجو بالألوان الكاملة، بيتكشف من تحت لفوق بحافة مائلة
- */
 export default function Loader({ phase, instant }) {
   const vars = {
     "--t-overlay-in": `${TIMINGS.overlayIn}ms`,

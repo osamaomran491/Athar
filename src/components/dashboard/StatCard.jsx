@@ -9,8 +9,7 @@ export default function StatCard({ label, value, change, className = "" }) {
   return (
     <motion.article
       className={`glass-card stat-card ${className}`}
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+      
     >
       <h2 className="stat-card__label">{label}</h2>
 

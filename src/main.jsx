@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import App from "./App.jsx";
 import { LoaderProvider } from "./components/loader/LoaderProvider.jsx";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
@@ -15,6 +16,7 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "not-configure
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <ThemeProvider> 
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}> 
       <LoaderProvider>
         <BrowserRouter basename="/Athar">
@@ -22,5 +24,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </BrowserRouter>
       </LoaderProvider>
       </GoogleOAuthProvider>
+      </ThemeProvider>
   </React.StrictMode>
 );

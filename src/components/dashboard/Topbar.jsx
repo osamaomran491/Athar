@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { LuSearch, LuLogOut, LuMenu, LuX } from "react-icons/lu";
+import { LuSearch, LuLogOut, LuMenu, LuX, LuSun, LuMoon } from "react-icons/lu";
 import UserAvatar from "./UserAvatar";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export default function Topbar({ name, role = "Museum Staff", picture, onLogout, navOpen, onMenuClick }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const avatarRef = useRef(null);
+  const { dark, toggleTheme } = useTheme();
 
-  // close the menu when the user clicks anywhere else
   useEffect(() => {
     const closeOnOutsideClick = (e) => {
       if (avatarRef.current && !avatarRef.current.contains(e.target)) setMenuOpen(false);
@@ -17,7 +18,7 @@ export default function Topbar({ name, role = "Museum Staff", picture, onLogout,
 
   return (
     <header className="topbar">
-      {/* shows only on phones: opens / closes the sidebar */}
+      {/* زرار الـ menu على الموبايل */}
       <button
         type="button"
         className="topbar__menu-btn"
@@ -34,7 +35,6 @@ export default function Topbar({ name, role = "Museum Staff", picture, onLogout,
       </label>
 
       <div className="profile">
-        {/* only the avatar opens the menu */}
         <div className="profile__avatar-wrap" ref={avatarRef}>
           <button
             type="button"
@@ -48,7 +48,7 @@ export default function Topbar({ name, role = "Museum Staff", picture, onLogout,
 
           {menuOpen && (
             <div className="profile__menu">
-              {/* who is signed in */}
+              {/* معلومات المستخدم */}
               <div className="profile__menu-head">
                 <UserAvatar name={name} picture={picture} className="avatar--small" />
                 <div className="profile__menu-text">
@@ -56,6 +56,23 @@ export default function Topbar({ name, role = "Museum Staff", picture, onLogout,
                   <p className="profile__role">{role}</p>
                 </div>
               </div>
+
+              {/* ===== زرار Modes ===== */}
+              <div className="profile__modes-row">
+                <span className="profile__modes-label">Modes</span>
+                <button
+                  type="button"
+                  className={`modes-btn ${dark ? "modes-btn--dark" : ""}`}
+                  onClick={toggleTheme}
+                  aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+                >
+                  <span className="modes-btn__circle">
+                    {dark ? <LuMoon /> : <LuSun />}
+                  </span>
+                </button>
+              </div>
+
+              <div className="profile__divider" />
 
               <button type="button" className="profile__menu-item" onClick={onLogout}>
                 <LuLogOut /> Log out

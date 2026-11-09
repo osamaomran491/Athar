@@ -9,7 +9,7 @@ import Topbar from "../dashboard/Topbar";
 export default function DashboardLayout({ userName, userPicture, onLogout, children }) {
   const [navOpen, setNavOpen] = useState(false);
 
-  // while the sidebar is open: Esc closes it and the page behind it can't scroll
+  /* Esc يغلق الـ sidebar على الموبايل */
   useEffect(() => {
     if (!navOpen) return;
     const closeOnEscape = (e) => e.key === "Escape" && setNavOpen(false);
@@ -21,7 +21,7 @@ export default function DashboardLayout({ userName, userPicture, onLogout, child
     };
   }, [navOpen]);
 
-  // if the window becomes wide (desktop), the sidebar is always visible, so reset the state
+  /* لما الشاشة تكبر، أعد تهيئة الـ sidebar */
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 768px)");
     const reset = (e) => e.matches && setNavOpen(false);
@@ -31,10 +31,18 @@ export default function DashboardLayout({ userName, userPicture, onLogout, child
 
   return (
     <div className={`dash ${navOpen ? "dash--nav-open" : ""}`}>
-      <Sidebar open={navOpen} onNavigate={() => setNavOpen(false)} onClose={() => setNavOpen(false)} />
+      <Sidebar
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        /* لا onNavigate — الـ sidebar يفضل مفتوح عند التنقل */
+      />
 
-      {/* dark area behind the sidebar on phones */}
-      <div className="dash__backdrop" onClick={() => setNavOpen(false)} aria-hidden="true" />
+      {/* الـ backdrop على الموبايل فقط */}
+      <div
+        className="dash__backdrop"
+        onClick={() => setNavOpen(false)}
+        aria-hidden="true"
+      />
 
       <div className="dash__body">
         <Topbar
@@ -42,7 +50,7 @@ export default function DashboardLayout({ userName, userPicture, onLogout, child
           picture={userPicture}
           onLogout={onLogout}
           navOpen={navOpen}
-          onMenuClick={() => setNavOpen((open) => !open)}
+          onMenuClick={() => setNavOpen((o) => !o)}
         />
         <main className="dash__main">{children}</main>
       </div>

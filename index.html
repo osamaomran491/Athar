@@ -5,7 +5,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ATHAR</title>
-    <style>html,body{background:#f7f4eb}</style>
+    <script>
+      (function() {
+        var saved = localStorage.getItem('athar-theme');
+        if (saved === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.style.background = '#181610';
+          document.body && (document.body.style.background = '#181610');
+        } else {
+          document.documentElement.style.background = '#f7f4eb';
+        }
+      })();
+    </script>
+    <style>
+      html, body { margin: 0; padding: 0; }
+      html[data-theme="dark"] { background: #181610; }
+      html:not([data-theme="dark"]) { background: #f7f4eb; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
