@@ -1,0 +1,222 @@
+/* ==================================================================
+   OTP — صفحة Verify it's you (بنفس ألوان وقياسات أثر)
+================================================================== */
+.otp { --otp-accent: var(--c-gold); }
+.otp[data-status="success"] { --otp-accent: var(--c-ok); }
+.otp[data-status="error"]   { --otp-accent: var(--c-error); }
+
+/* ---------- القفل + الحلقة ---------- */
+.otp__lock {
+  position: relative;
+  width: calc(96 * var(--px)); height: calc(96 * var(--px));
+  margin: 0 auto calc(26 * var(--px));
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 25%, #fff, var(--c-field-bg) 75%);
+  box-shadow: 0 calc(10 * var(--px)) calc(24 * var(--px)) rgba(31, 58, 86, .12),
+              inset 0 0 0 calc(6 * var(--px)) rgba(255, 255, 255, .75);
+  animation: otpFloat 3.6s ease-in-out infinite;
+}
+.otp__icon {
+  width: calc(40 * var(--px)); height: calc(40 * var(--px));
+  color: var(--c-navy);
+  transition: color .3s;
+}
+.otp[data-status="success"] .otp__icon,
+.otp[data-status="error"] .otp__icon { color: var(--otp-accent); }
+
+.otp__shackle {
+  transform-origin: 16px 11px;
+  transition: transform .55s cubic-bezier(.34, 1.56, .64, 1);
+}
+.otp[data-status="success"] .otp__shackle { transform: translateY(-1px) rotate(22deg); }
+
+.otp__ring {
+  position: absolute;
+  inset: calc(-9 * var(--px));
+  width: calc(100% + 18 * var(--px)); height: calc(100% + 18 * var(--px));
+  transform: rotate(-90deg);
+  overflow: visible; pointer-events: none;
+}
+.otp__ring circle { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.otp__ring-track { stroke: rgba(172, 143, 64, .16); transition: stroke .3s; }
+.otp__ring-arc {
+  stroke: var(--otp-accent);
+  stroke-dasharray: 90 205.3;
+  transition: stroke .3s, stroke-dasharray .7s cubic-bezier(.4, 0, .2, 1);
+}
+.otp__ring-spin { transform-origin: 50px 50px; animation: otpSpin 1.6s linear infinite; }
+.otp[data-status="verifying"] .otp__ring-spin { animation-duration: .8s; }
+.otp[data-status="success"] .otp__ring-arc,
+.otp[data-status="error"] .otp__ring-arc { stroke-dasharray: 295.3 0; }
+.otp[data-status="success"] .otp__ring-spin,
+.otp[data-status="error"] .otp__ring-spin { animation: none; }
+.otp[data-status="success"] .otp__ring-track { stroke: rgba(63, 143, 91, .2); }
+.otp[data-status="error"] .otp__ring-track   { stroke: rgba(192, 57, 43, .2); }
+.otp[data-status="error"] .otp__lock { animation: otpShake .5s ease; }
+
+.otp__swap { animation: otpIn .45s cubic-bezier(.2, .8, .2, 1) both; }
+.otp__email { display: block; color: var(--c-navy); font-weight: 700; }
+
+/* ---------- الخانات ---------- */
+.otp__boxes {
+  margin-top: calc(40 * var(--px));
+  display: flex; gap: calc(18 * var(--px));
+}
+.otp__cell { position: relative; flex: 1; min-width: 0; height: calc(92 * var(--px)); }
+
+.otp__input {
+  width: 100%; height: 100%;
+  padding: 0;
+  text-align: center;
+  font: inherit; font-size: calc(40 * var(--px)); font-weight: 700;
+  color: var(--c-navy);
+  caret-color: var(--c-gold);
+  background: var(--c-field-bg);
+  border: calc(2 * var(--px)) solid var(--c-field-border);
+  border-radius: var(--radius-field);
+  box-shadow: 0 calc(2 * var(--px)) calc(6 * var(--px)) rgba(31, 58, 86, .06);
+  outline: 0;
+  transition: transform .2s, border-color .2s, box-shadow .2s, background .2s, color .2s;
+}
+.otp__input:focus {
+  transform: translateY(calc(-3 * var(--px)));
+  border-color: var(--c-gold);
+  background: #fff;
+  box-shadow: 0 0 0 calc(5 * var(--px)) rgba(172, 143, 64, .18),
+              0 calc(10 * var(--px)) calc(20 * var(--px)) rgba(172, 143, 64, .22);
+}
+.otp__cell.is-filled .otp__input {
+  border-color: var(--c-gold);
+  background: #fff;
+  animation: otpPop .32s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+/* النقطة (فاضية) + الشرطة تحت الرقم (مليانة) */
+.otp__cell::before, .otp__cell::after {
+  content: ""; position: absolute; left: 50%; pointer-events: none;
+  transition: opacity .2s, transform .25s;
+}
+.otp__cell::before {
+  top: 50%; width: calc(8 * var(--px)); height: calc(8 * var(--px));
+  margin: calc(-4 * var(--px)) 0 0 calc(-4 * var(--px));
+  border-radius: 50%; background: var(--c-field-border);
+}
+.otp__cell:focus-within::before, .otp__cell.is-filled::before { opacity: 0; transform: scale(.4); }
+.otp__cell::after {
+  bottom: calc(14 * var(--px)); width: calc(22 * var(--px)); height: calc(3 * var(--px));
+  margin-left: calc(-11 * var(--px));
+  border-radius: 3px; background: var(--c-gold);
+  opacity: 0; transform: scaleX(0);
+}
+.otp__cell.is-filled::after { opacity: 1; transform: scaleX(1); }
+
+/* Verifying: موجة على الخانات */
+.otp[data-status="verifying"] .otp__input {
+  border-color: var(--c-gold); background: #fff; color: var(--c-navy);
+  animation: otpWave .9s ease-in-out infinite;
+  animation-delay: calc(var(--k) * .12s);
+}
+.otp[data-status="verifying"] .otp__cell::after { background: var(--c-gold); }
+
+/* Success: الخانات تتقلب وتبقى خضرا */
+.otp[data-status="success"] .otp__input {
+  color: #fff;
+  border-color: var(--c-ok);
+  background: linear-gradient(180deg, #55b97c, var(--c-ok));
+  box-shadow: 0 calc(8 * var(--px)) calc(18 * var(--px)) rgba(63, 143, 91, .35);
+  animation: otpFlip .6s cubic-bezier(.3, 1.4, .5, 1) both;
+  animation-delay: calc(var(--k) * .1s);
+  -webkit-text-fill-color: #fff;
+}
+.otp[data-status="success"] .otp__cell::after { opacity: 0; }
+
+/* Error: هزّة + أحمر */
+.otp[data-status="error"] .otp__input {
+  color: var(--c-error);
+  border-color: var(--c-error);
+  background: rgba(192, 57, 43, .05);
+  box-shadow: 0 0 0 calc(4 * var(--px)) rgba(192, 57, 43, .10);
+  animation: otpShake .5s ease both;
+  animation-delay: calc(var(--k) * .04s);
+}
+.otp[data-status="error"] .otp__cell::after { background: var(--c-error); }
+
+.otp__error {
+  margin-top: calc(16 * var(--px));
+  display: flex; align-items: center; justify-content: center; gap: calc(8 * var(--px));
+  font-size: calc(18 * var(--px)); font-weight: 500;
+  color: var(--c-error);
+  animation: otpIn .3s ease both;
+}
+.otp__error svg { width: calc(20 * var(--px)); height: calc(20 * var(--px)); flex-shrink: 0; }
+
+/* ---------- الزرار (بيتملي كل ما تكتب رقم) ---------- */
+.btn.btn--gold.otp__btn {
+  margin-top: calc(34 * var(--px));
+  background: #cfd4dc;
+  isolation: isolate;
+}
+.otp__fill {
+  position: absolute; inset: 0 auto 0 0; width: 0; z-index: -1;
+  background: var(--c-gold);
+  transition: width .4s cubic-bezier(.4, 0, .2, 1), background .3s;
+}
+.otp__btn-label { display: inline-flex; align-items: center; gap: calc(10 * var(--px)); }
+.btn.btn--gold.otp__btn:hover:not(:disabled) { background: #cfd4dc; }
+.otp__btn:hover:not(:disabled) .otp__fill { background: var(--c-gold-hover); }
+.btn.btn--gold.otp__btn:disabled { opacity: 1; cursor: not-allowed; }
+.btn.btn--gold.otp__btn:disabled:hover { transform: none; box-shadow: none; }
+.otp[data-status="verifying"] .btn.otp__btn:disabled { cursor: progress; }
+.otp[data-status="success"] .otp__fill { background: var(--c-ok); }
+.otp[data-status="success"] .otp__btn:hover:not(:disabled) .otp__fill { background: var(--c-ok); filter: brightness(.93); }
+.otp[data-status="success"] .btn.btn--gold.otp__btn:hover { box-shadow: 0 calc(10 * var(--px)) calc(24 * var(--px)) rgba(63, 143, 91, .35); }
+
+.otp__spinner {
+  width: calc(22 * var(--px)); height: calc(22 * var(--px));
+  border: calc(3 * var(--px)) solid rgba(255, 255, 255, .4);
+  border-top-color: #fff; border-radius: 50%;
+  animation: otpSpin .7s linear infinite;
+}
+
+/* ---------- Resend ---------- */
+.otp__resend {
+  margin-top: calc(26 * var(--px));
+  display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+  gap: calc(10 * var(--px));
+  font-size: calc(20 * var(--px)); color: var(--c-text);
+}
+.otp__timer { display: inline-flex; align-items: center; gap: calc(8 * var(--px)); font-weight: 600; color: var(--c-navy); font-variant-numeric: tabular-nums; }
+.otp__clock { width: calc(22 * var(--px)); height: calc(22 * var(--px)); transform: rotate(-90deg); }
+.otp__clock circle { fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.otp__clock-track { stroke: rgba(172, 143, 64, .22); }
+.otp__clock-arc { stroke: var(--c-gold); transition: stroke-dashoffset 1s linear; }
+.otp__resend-btn {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  font: inherit; font-weight: 600; color: var(--c-gold-link);
+  animation: otpIn .3s ease both;
+}
+.otp__resend-btn:hover { text-decoration: underline; }
+
+.otp__demo { margin-top: calc(16 * var(--px)); text-align: center; font-size: calc(16 * var(--px)); color: var(--c-muted); }
+.otp__demo b { color: var(--c-navy); letter-spacing: .08em; }
+.otp__back { margin-top: calc(28 * var(--px)); }
+
+/* ---------- Keyframes ---------- */
+@keyframes otpSpin  { to { transform: rotate(360deg); } }
+@keyframes otpFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-4 * var(--px))); } }
+@keyframes otpIn    { from { opacity: 0; transform: translateY(calc(8 * var(--px))); } to { opacity: 1; transform: none; } }
+@keyframes otpPop   { 0% { transform: scale(.9); } 60% { transform: scale(1.07); } 100% { transform: scale(1); } }
+@keyframes otpWave  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-8 * var(--px))); } }
+@keyframes otpFlip  { 0% { transform: rotateX(90deg) scale(.8); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes otpShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(calc(-8 * var(--px))); }
+  40% { transform: translateX(calc(8 * var(--px))); }
+  60% { transform: translateX(calc(-5 * var(--px))); }
+  80% { transform: translateX(calc(5 * var(--px))); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otp *, .otp *::before, .otp *::after { animation: none !important; transition: none !important; }
+}

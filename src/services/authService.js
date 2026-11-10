@@ -1,6 +1,11 @@
 
 const USERS_KEY = "Athar_users";
 const SESSION_KEY = "Athar_session";
+const OTP_KEY = "Athar_reset_otp";
+const OTP_TTL = 10 * 60 * 1000; // الكود صالح 10 دقايق
+
+/** خليه false لما الباك إند يبعت الكود على الإيميل فعلاً (بيظهر "Your OTP is ...") */
+export const SHOW_DEMO_OTP = true;
 
 export class AuthError extends Error {
   constructor(field, message) {
@@ -66,6 +71,60 @@ export async function loginWithGoogle(profile) {
     writeUsers(users);
   }
   return saveSession({ ...user, picture: profile.picture || user.picture }, true);
+}
+
+/** Forgot password – step 1: make sure the email belongs to a password account. */
+export async function requestPasswordReset({ email }) {
+  const user = readUsers().find((u) => u.email === normalize(email));
+  if (!user) throw new AuthError("email", "No account found with this email");
+  if (!user.passwordHash) {
+    throw new AuthError("email", "This account uses Google. Please use “Login with Google”");
+  }
+  return { email: user.email };
+}
+
+/** Forgot password – step 2: generate a 4-digit code for this email.
+ *  TODO: لما يبقى فيه باك إند، ابعت الكود على الإيميل من هناك ومترجّعوش للمتصفح. */
+export async function sendResetOtp({ email }) {
+  const code = String(Math.floor(1000 + Math.random() * 9000));
+  sessionStorage.setItem(OTP_KEY, JSON.stringify({
+    email: normalize(email), code, expires: Date.now() + OTP_TTL, verified: false,
+  }));
+  return { code };
+}
+
+const readOtp = () => {
+  try { return JSON.parse(sessionStorage.getItem(OTP_KEY)); } catch { return null; }
+};
+
+/** للعرض التجريبي بس (SHOW_DEMO_OTP) */
+export const getDemoOtp = () => readOtp()?.code || "";
+
+/** Forgot password – step 3: check the code the user typed. */
+export async function verifyResetOtp({ email, code }) {
+  const rec = readOtp();
+  if (!rec || rec.email !== normalize(email)) {
+    throw new AuthError("otp", "Code expired. Please request a new one");
+  }
+  if (Date.now() > rec.expires) throw new AuthError("otp", "Code expired. Please request a new one");
+  if (rec.code !== code) throw new AuthError("otp", "That code didn’t match. Try again.");
+  sessionStorage.setItem(OTP_KEY, JSON.stringify({ ...rec, verified: true }));
+}
+
+export function isResetVerified(email) {
+  const rec = readOtp();
+  return !!rec && rec.verified && rec.email === normalize(email) && Date.now() <= rec.expires;
+}
+
+/** Forgot password – step 4: save the new password (only after the code was verified). */
+export async function resetPassword({ email, password }) {
+  if (!isResetVerified(email)) throw new AuthError("password", "Please verify your code first");
+  const users = readUsers();
+  const user = users.find((u) => u.email === normalize(email));
+  if (!user) throw new AuthError("password", "Account not found. Please start again");
+  user.passwordHash = await hash(password);
+  writeUsers(users);
+  sessionStorage.removeItem(OTP_KEY);
 }
 
 export function getSession() {

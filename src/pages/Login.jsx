@@ -24,7 +24,11 @@ export default function Login() {
   const navigate = useNavigate();
   const { showLoader } = useLoader();
   const location = useLocation();
-  const justRegistered = location.state?.registered;
+  const notice = location.state?.registered
+    ? "Account created. Log in to continue."
+    : location.state?.passwordReset
+      ? "Password updated. Log in with your new password."
+      : "";
   const [googleError, setGoogleError] = useState("");
 
   const { values, errors, formError, shakeTick, submitting, onChange, handleSubmit } = useForm({
@@ -58,12 +62,11 @@ export default function Login() {
 
         <div className="form__options reveal" style={{ "--i": 3 }}>
           <Checkbox name="remember" checked={values.remember} onChange={onChange}>Remember me</Checkbox>
-          {/* TODO: اربطها بصفحة استرجاع الباسورد */}
-          <a href="#" className="form__forgot" onClick={(e) => e.preventDefault()}>Forget password?</a>
+          <Link to="/forgot-password" className="form__forgot">Forget password?</Link>
         </div>
 
-        {justRegistered && !formError && (
-          <p className="form__notice" role="status">Account created. Log in to continue.</p>
+        {notice && !formError && (
+          <p className="form__notice" role="status">{notice}</p>
         )}
         {(formError || googleError) && <p className="form__alert" role="alert">{formError || googleError}</p>}
 

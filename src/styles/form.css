@@ -236,3 +236,16 @@
 .check__input:focus-visible + .check__box { box-shadow: 0 0 0 calc(4 * var(--px)) rgba(172,143,64,.3); }
 
 .btn:disabled { opacity: .7; cursor: progress; }
+
+
+/* ---- Forgot / Reset password ---- */
+.form__back {
+  margin-top: calc(40 * var(--px));
+  display: flex; align-items: center; justify-content: center;
+  gap: calc(8 * var(--px));
+  font-size: calc(20 * var(--px));
+  font-weight: 600;
+  color: var(--c-gold-link);
+}
+.form__back svg { width: calc(22 * var(--px)); height: calc(22 * var(--px)); }
+.form__back:hover { text-decoration: underline; }
