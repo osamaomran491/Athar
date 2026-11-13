@@ -1,0 +1,222 @@
+/* ================================================================
+   ROBOT LIVE CONTROL  (/robots)
+   Sizes and colors are taken 1:1 from the Figma design (1920×1080).
+   Everything is scoped under .rlc so no other page is affected.
+================================================================== */
+
+/* ---------- Light mode (colors from the design) ---------- */
+.rlc {
+  --r-card:      #fffefc;   /* card / panel background */
+  --r-border:    #e5ded6;   /* card / panel / button border */
+  --r-title:     #202127;   /* page title */
+  --r-sub:       #8d8987;   /* page subtitle */
+  --r-name:      #34333a;   /* robot name */
+  --r-text:      #000000;   /* panel titles, list, buttons, battery % */
+  --r-close:     #86827e;   /* X on the cards */
+  --r-gold:      #b57b29;   /* Charging · control icons · live pin */
+  --r-green:     #39a96b;   /* On Tour · battery high */
+  --r-standby:   #69645f;   /* Standby / Offline */
+  --r-red:       #fa1b1b;   /* battery empty */
+  --r-shadow:    0 2px 8px rgba(120, 90, 50, .12);
+  --r-select:    #ac8f40;
+  --m-sand: #f4e8cc; --m-grid: rgba(181,123,41,.12); --m-stone: #d9cfb9;
+  --m-gold: #b57b29; --m-wall: #4a3418; --m-green: #39a96b;
+}
+
+/* ---------- Dark mode (uses the dashboard dark palette) ---------- */
+[data-theme="dark"] .rlc {
+  --r-card:      var(--d-glass);
+  --r-border:    var(--d-glass-line);
+  --r-title:     var(--d-ink);
+  --r-sub:       var(--d-muted);
+  --r-name:      var(--d-ink);
+  --r-text:      var(--d-ink);
+  --r-close:     var(--d-muted);
+  --r-gold:      #c49a40;
+  --r-green:     #42d48a;
+  --r-standby:   #a09483;
+  --r-red:       #e06b5f;
+  --r-shadow:    0 4px 14px rgba(0, 0, 0, .45);
+  --r-select:    #a07828;
+  --m-sand: #2a2419; --m-grid: rgba(196,154,64,.12); --m-stone: #3b3324;
+  --m-gold: #c49a40; --m-wall: #e8d9b5; --m-green: #42d48a;
+}
+
+/* ---------- Page header (title 40px · subtitle 20px) ---------- */
+.rlc { padding: 4px 47px 0 8px; }
+.rlc__title {
+  font-size: 40px; line-height: 52px; font-weight: 500;
+  color: var(--r-title);
+}
+.rlc__subtitle {
+  margin-top: 2px;
+  font-size: 20px; line-height: 28px; font-weight: 400;
+  color: var(--r-sub);
+}
+
+/* ---------- Grid: 4 columns · 36px between columns · 50px between rows ----------
+   cards = 1 column each · Live Location = 3 columns · Controls = 1 column */
+.rlc__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 36px;
+  row-gap: 50px;
+  margin: 44px 0 0 13px;
+}
+
+/* ---------- Robot card (full width) ---------- */
+.rlc-card {
+  grid-column: 1 / -1;
+  display: flex;
+  height: 130px;
+  background: var(--r-card);
+  border: 1px solid var(--r-border);
+  border-radius: 16px;
+  box-shadow: var(--r-shadow);
+  cursor: pointer;
+  transition: border-color .2s ease, box-shadow .2s ease, background .4s ease;
+}
+.rlc-card:hover { box-shadow: 0 4px 14px rgba(120, 90, 50, .20); }
+.rlc-card--selected { border-color: var(--r-select); box-shadow: 0 0 0 1px var(--r-select), var(--r-shadow); }
+
+/* reserved picture area: text starts 115px from the card edge */
+.rlc-card__media { flex: 0 0 114px; display: grid; place-items: center; }
+.rlc-card__media img { max-width: 80px; max-height: 100px; object-fit: contain; }
+
+.rlc-card__body { flex: 1; min-width: 0; padding: 20px 36px 0; }
+
+.rlc-card__top { display: flex; align-items: center; justify-content: space-between; }
+.rlc-card__name {
+  font-size: 20px; line-height: 28px; font-weight: 400;
+  color: var(--r-name);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rlc-card__close {
+  display: grid; place-items: center; flex-shrink: 0;
+  width: 22px; height: 22px; margin-left: 8px; padding: 0;
+  border: 0; background: none; color: var(--r-close); cursor: pointer;
+  transition: color .2s ease;
+}
+.rlc-card__close:hover { color: var(--r-text); }
+.rlc-card__close svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+/* status row:  ✓ On Tour  > */
+.rlc-card__status {
+  display: flex; align-items: center; gap: 8px;
+  height: 28px; margin: 0; padding: 0;
+  border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 16px; font-weight: 600;
+  color: var(--r-standby);
+}
+.rlc-card__status-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.rlc-card__chevron { width: 12px; height: 12px; margin-left: 4px; flex-shrink: 0; transition: transform .2s ease; }
+.rlc-card__status:hover .rlc-card__chevron { transform: translateX(3px); }
+
+.rlc-card--tour     .rlc-card__status { color: var(--r-green); }
+.rlc-card--charging .rlc-card__status { color: var(--r-gold); }
+.rlc-card--standby  .rlc-card__status,
+.rlc-card--offline  .rlc-card__status { color: var(--r-standby); }
+
+/* battery row */
+.rlc-card__battery {
+  display: flex; align-items: center; gap: 9px;
+  height: 28px; margin-top: 18px;
+  font-size: 16px; font-weight: 500; color: var(--r-text);
+}
+.rlc-card__battery-icon { width: 23px; height: 14px; flex-shrink: 0; }
+.rlc-card__battery--high .rlc-card__battery-icon { color: var(--r-green); }
+.rlc-card__battery--mid  .rlc-card__battery-icon { color: var(--r-gold); }
+.rlc-card__battery--low  .rlc-card__battery-icon { color: var(--r-red); }
+
+/* wide battery bar */
+.rlc-card__bar { flex: 1; height: 12px; border-radius: 99px; background: var(--r-border); overflow: hidden; }
+.rlc-card__fill { height: 100%; border-radius: 99px; background: currentColor; transition: width .8s ease; }
+.rlc-card__battery { gap: 14px; }
+.rlc-card__battery--high { color: var(--r-green); }
+.rlc-card__battery--mid  { color: var(--r-gold); }
+.rlc-card__battery--low  { color: var(--r-red); }
+.rlc-card__pct { min-width: 44px; text-align: right; color: var(--r-text); }
+.rlc-card--returning .rlc-card__status { color: var(--r-gold); }
+.rlc-card--paused .rlc-card__status { color: var(--r-standby); }
+
+/* map */
+.rlc-live__tag { margin-left: auto; font-size: 14px; font-weight: 600; padding: 4px 14px; border-radius: 99px; background: rgba(181,123,41,.12); color: var(--r-gold); }
+.rlc-live__tag--tour { color: var(--r-green); background: rgba(57,169,107,.12); }
+.rlc-live__tag--paused { color: var(--r-standby); background: rgba(105,100,95,.12); }
+.rmap { width: 100%; height: 100%; display: block; }
+.rmap__label { font: 600 22px Inter, sans-serif; fill: var(--m-gold); }
+.rmap__pulse { fill: var(--m-gold); opacity: .25; transform-box: fill-box; transform-origin: center; animation: rmapPulse 1.8s ease-out infinite; }
+.rmap--paused .rmap__pulse, .rmap--charging .rmap__pulse { animation-play-state: paused; opacity: .12; }
+@keyframes rmapPulse { from { transform: scale(.6); opacity: .45; } to { transform: scale(1.8); opacity: 0; } }
+
+/* ---------- Panels (Live Location + Robot Controls) · 449px tall ---------- */
+.rlc-panel {
+  min-height: 449px;
+  background: var(--r-card);
+  border: 1px solid var(--r-border);
+  box-shadow: var(--r-shadow);
+  transition: background .4s ease;
+}
+.rlc-panel__title { font-size: 24px; line-height: 32px; font-weight: 600; color: var(--r-text); }
+
+/* Live Location */
+.rlc-live {
+  grid-column: span 3;
+  display: flex; flex-direction: column;
+  padding: 31px 45px 30px;
+  border-radius: 16px;
+}
+.rlc-live__title { display: flex; align-items: center; gap: 22px; }
+.rlc-live__pin { width: 24px; height: 24px; flex-shrink: 0; color: var(--r-gold); }
+.rlc-live__map { flex: 1; min-height: 0; margin-top: 16px; }
+
+/* Robot Controls (square-ish corners like the design) */
+.rlc-controls {
+  grid-column: span 1;
+  padding: 31px 16px 0 36px;
+  border-radius: 4px;
+}
+.rlc-controls__list { display: flex; flex-direction: column; gap: 23px; margin: 22px 0 0 -19px; }
+
+.rlc-btn {
+  display: flex; align-items: center; gap: 21px;
+  width: 100%; height: 62px; padding: 0 20px;
+  border: 1px solid var(--r-border);
+  border-radius: 20px;
+  background: var(--r-card);
+  box-shadow: var(--r-shadow);
+  font: inherit; font-size: 18px; font-weight: 500; color: var(--r-text);
+  text-align: left; cursor: pointer;
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.rlc-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(120, 90, 50, .20); }
+.rlc-btn:disabled { opacity: .45; cursor: not-allowed; }
+.rlc-btn__icon { flex-shrink: 0; width: 26px; height: 26px; color: var(--r-gold); }
+.rlc-btn__icon--line { stroke-width: 2; }
+
+/* ================================================================
+   Tablets
+================================================================== */
+@media (max-width: 1100px) {
+  .rlc { padding-right: 32px; }
+  .rlc__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-left: 0; row-gap: 24px; }
+  .rlc-live, .rlc-controls { grid-column: 1 / -1; }
+  .rlc-panel { min-height: 0; }
+  .rlc-live { min-height: 360px; }
+  .rlc-controls { padding: 24px 24px 28px; border-radius: 16px; }
+  .rlc-controls__list { margin-left: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+}
+
+/* ================================================================
+   Phones
+================================================================== */
+@media (max-width: 767px) {
+  .rlc { padding: 0; }
+  .rlc__title { font-size: 26px; line-height: 34px; }
+  .rlc__subtitle { font-size: 14px; line-height: 20px; }
+  .rlc__grid { grid-template-columns: 1fr; margin-top: 20px; gap: 14px; }
+  .rlc-card { height: auto; padding-bottom: 18px; }
+  .rlc-live { min-height: 300px; padding: 22px 20px; }
+  .rlc-live__title { gap: 12px; font-size: 20px; }
+  .rlc-controls__list { grid-template-columns: 1fr; }
+}

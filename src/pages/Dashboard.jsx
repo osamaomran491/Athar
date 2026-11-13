@@ -45,8 +45,11 @@ export default function Dashboard() {
         ))}
       </section>
 
-      <RobotStatusCard robots={robots} onOpen={() => navigate("/robots")}
-        onSelect={(robot) => navigate(`/robots/${robot.id}`)} className="reveal" style={{ "--i": 4 }} />
+     <RobotStatusCard
+       robots={robots}
+       className="reveal"
+       style={{ "--i": 4 }}
+      />
     </DashboardLayout>
   );
 }

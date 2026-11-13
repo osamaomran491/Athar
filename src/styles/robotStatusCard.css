@@ -1,0 +1,27 @@
+/* Dashboard "Robot Status" card (live, links to /robots) */
+.rsc {
+  --c-gold: #b57b29; --c-green: #39a96b; --c-grey: #69645f; --c-red: #fa1b1b;
+  --c-text: #202127; --c-line: #e5ded6;
+  padding: 28px 28px 24px; border-radius: 24px;
+  background: rgba(255, 254, 252, .8); box-shadow: 0 2px 12px rgba(120, 90, 50, .12);
+}
+[data-theme="dark"] .rsc { --c-gold: #c49a40; --c-green: #42d48a; --c-grey: #a09483; --c-red: #e06b5f; --c-text: var(--d-ink); --c-line: var(--d-glass-line); background: var(--d-glass); }
+.rsc__title { font-size: 22px; font-weight: 500; color: var(--c-text); padding-bottom: 14px; border-bottom: 1px solid var(--c-line); }
+.rsc__row { display: flex; align-items: center; gap: 22px; margin-top: 18px; text-decoration: none; color: var(--c-text); transition: transform .2s ease; }
+.rsc__row:hover { transform: translateX(3px); }
+.rsc__icon { width: 54px; height: 54px; flex-shrink: 0; color: var(--c-gold); stroke-width: 1.3; }
+.rsc__info { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+.rsc__name { font-size: 16px; font-weight: 600; }
+.rsc__status { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: var(--c-grey); }
+.rsc__dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+.rsc__status--tour { color: var(--c-green); }
+.rsc__status--charging, .rsc__status--returning { color: var(--c-gold); }
+.rsc__status--tour .rsc__dot { animation: rscBlink 1.4s ease-in-out infinite; }
+@keyframes rscBlink { 50% { opacity: .3; } }
+.rsc__battery { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; }
+.rsc__bar { width: 70px; height: 8px; border-radius: 99px; background: var(--c-line); overflow: hidden; }
+.rsc__bar span { display: block; height: 100%; border-radius: 99px; background: currentColor; transition: width .8s ease; }
+.rsc__battery--high { color: var(--c-green); } .rsc__battery--mid { color: var(--c-gold); } .rsc__battery--low { color: var(--c-red); }
+.rsc__battery { color: var(--c-text); }
+.rsc__battery--high .rsc__bar { color: var(--c-green); } .rsc__battery--mid .rsc__bar { color: var(--c-gold); } .rsc__battery--low .rsc__bar { color: var(--c-red); }
+.rsc__chevron { width: 18px; height: 18px; color: var(--c-grey); flex-shrink: 0; }

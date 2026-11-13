@@ -823,3 +823,94 @@
   .robot-row__status { width: auto; }
   .badge { width: 76px; height: 26px; border-radius: 13px; font-size: 12px; }
 }
+
+/* Robot Status - Live Control Style */
+
+.robot-status-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 27px;
+  padding: 18px 7px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.robot-status-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.robot-status-name {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--d-ink);
+}
+
+.robot-status-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.robot-status-state.charging {
+  color: #bd8128;
+}
+
+.robot-status-state.tour {
+  color: #35a875;
+}
+
+.robot-status-state.paused {
+  color: #b57b29;
+}
+
+.robot-status-state.returning {
+  color: #4388bd;
+}
+
+.robot-arrow {
+  font-size: 25px;
+}
+
+.robot-battery-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.battery-icon {
+  color: #35a875;
+  font-size: 19px;
+}
+
+.battery-track {
+  flex: 1;
+  height: 12px;
+  background: #e5e0da;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.battery-fill {
+  height: 100%;
+  background: #35a875;
+  border-radius: 20px;
+  transition: width 0.4s ease;
+}
+
+.battery-value {
+  min-width: 42px;
+  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--d-ink);
+}

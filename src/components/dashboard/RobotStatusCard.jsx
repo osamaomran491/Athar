@@ -1,36 +1,69 @@
-import RobotIcon from "./RobotIcon";
-import { statusLabels } from "../../data/dashboardData";
 
-export default function RobotStatusCard({ robots, onOpen, onSelect, className = "", style }) {
+import { useSyncExternalStore } from "react";
+import { useNavigate } from "react-router-dom";
+import { robotStore } from "../../data/robotStore";
+import { liveStatusLabels } from "../../data/robotsData";
+
+export default function RobotStatusCard({
+  robots,
+  className = "",
+  style
+}) {
+  const navigate = useNavigate();
+
+  const { status, battery } = useSyncExternalStore(
+    robotStore.subscribe,
+    robotStore.getSnapshot
+  );
+
   return (
     <section
-      className={`glass-card robot-panel ${onOpen ? "robot-panel--link" : ""} ${className}`}
+      className={`glass-card robot-panel ${className}`}
       style={style}
-      onClick={onOpen}
     >
-      <h2 className="robot-panel__title">Robot Status</h2>
+      <h2 className="robot-panel__title">
+        Robot Status
+      </h2>
 
-      <ul className="robot-list">
+      <div className="robot-list">
         {robots.map((robot) => (
-          <li key={robot.id}>
-            <button type="button" className="robot-row" onClick={(e) => {
-                e.stopPropagation(); // do not also trigger the panel's onOpen
-                onSelect?.(robot);
-              }}>
-              <RobotIcon className="robot-row__icon" />
-              <span className="robot-row__name">{robot.name}</span>
-              <span className="robot-row__status">
-              {robot.status && (
-                <span className={`badge badge--${robot.status}`}>{statusLabels[robot.status]}</span>
-              )}
+          <button
+            key={robot.id}
+            className="robot-status-row"
+            onClick={() => navigate("/robots")}
+            type="button"
+          >
+            <div className="robot-status-header">
+              <span className="robot-status-name">
+                {robot.name}
               </span>
-              <svg className="robot-row__chevron" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <polyline points="2,2 18,10 2,18" />
-              </svg>
-            </button>
-          </li>
+
+              <span className={`robot-status-state ${status}`}>
+                <span className="status-dot">●</span>
+                {liveStatusLabels[status] || "Unknown"}
+                <span className="robot-arrow">›</span>
+              </span>
+            </div>
+
+            <div className="robot-battery-row">
+              <span className="battery-icon">▰</span>
+
+              <div className="battery-track">
+                <div
+                  className="battery-fill"
+                  style={{
+                    width: `${battery}%`
+                  }}
+                />
+              </div>
+
+              <span className="battery-value">
+                {battery}%
+              </span>
+            </div>
+          </button>
         ))}
-      </ul>
+      </div>
     </section>
   );
 }
