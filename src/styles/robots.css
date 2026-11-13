@@ -220,3 +220,209 @@
   .rlc-live__title { gap: 12px; font-size: 20px; }
   .rlc-controls__list { grid-template-columns: 1fr; }
 }
+/* ── ESP32 Connection Dot (next to robot name) ── */
+.rlc-esp-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.rlc-esp-dot--on {
+  background: var(--r-green);
+  box-shadow: 0 0 8px var(--r-green);
+  animation: espPulse 2s ease infinite;
+}
+.rlc-esp-dot--off {
+  background: var(--r-standby);
+  opacity: 0.5;
+}
+@keyframes espPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--r-green); }
+  50% { opacity: 0.5; box-shadow: 0 0 16px var(--r-green); }
+}
+/* ── Telemetry Panel ── */
+.rlc-telemetry {
+  grid-column: 1 / -1;
+  padding: 24px 36px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: auto;
+}
+.rlc-telemetry__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.rlc-telemetry__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
+  background: rgba(181, 123, 41, 0.06);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+.rlc-telemetry__item:hover {
+  transform: translateY(-2px);
+}
+.rlc-telemetry__value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--r-gold);
+  line-height: 1.2;
+}
+.rlc-telemetry__unit {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--r-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.rlc-telemetry__badge {
+  font-size: 15px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 99px;
+  background: rgba(105, 100, 95, 0.12);
+  color: var(--r-standby);
+}
+.rlc-telemetry__badge--charging {
+  background: rgba(57, 169, 107, 0.12);
+  color: var(--r-green);
+  animation: chargePulse 1.5s ease infinite;
+}
+@keyframes chargePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+.rlc-telemetry__hint {
+  font-size: 13px;
+  color: var(--r-gold);
+  text-align: center;
+  margin: 0;
+  opacity: 0.8;
+}
+/* ── Dark mode adjustments ── */
+[data-theme="dark"] .rlc-telemetry__item {
+  background: rgba(196, 154, 64, 0.08);
+}
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .rlc-telemetry { grid-column: 1 / -1; }
+  .rlc-telemetry__grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+  .rlc-telemetry { padding: 16px 20px; }
+  .rlc-telemetry__grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .rlc-telemetry__value { font-size: 22px; }
+}
+/* ── Unified RoboGuide 01 Card ── */
+.rlc-card--unified {
+  height: auto !important;
+  min-height: 140px;
+  padding-bottom: 20px;
+}
+
+/* ESP32 Connection status dot */
+.rlc-esp-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.rlc-esp-dot--on {
+  background: var(--r-green);
+  box-shadow: 0 0 8px var(--r-green);
+  animation: espPulse 2s ease infinite;
+}
+.rlc-esp-dot--off {
+  background: var(--r-standby);
+  opacity: 0.45;
+}
+@keyframes espPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--r-green); }
+  50% { opacity: 0.4; box-shadow: 0 0 14px var(--r-green); }
+}
+
+/* Telemetry row inside the card */
+.rlc-card__telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--r-border);
+}
+
+.rlc-tele-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(181, 123, 41, 0.05);
+  border: 1px solid var(--r-border);
+  border-radius: 12px;
+  padding: 12px 8px;
+}
+
+[data-theme="dark"] .rlc-tele-item {
+  background: rgba(196, 154, 64, 0.06);
+}
+
+.rlc-tele-val {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--r-gold);
+  line-height: 1.2;
+}
+
+.rlc-tele-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--r-sub);
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+}
+
+.rlc-tele-item--badge {
+  background: transparent;
+  border: none;
+}
+
+.rlc-tele-pill {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 99px;
+  background: rgba(105, 100, 95, 0.12);
+  color: var(--r-standby);
+}
+
+.rlc-tele-pill--charging {
+  background: rgba(57, 169, 107, 0.12);
+  color: var(--r-green);
+  box-shadow: 0 0 10px rgba(57, 169, 107, 0.15);
+}
+
+.rlc-card__offline-msg {
+  text-align: center;
+  font-size: 12px;
+  color: var(--r-gold);
+  margin-top: 14px;
+  opacity: 0.85;
+}
+
+@media (max-width: 767px) {
+  .rlc-card__telemetry {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}

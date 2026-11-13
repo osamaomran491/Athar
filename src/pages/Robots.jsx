@@ -1,6 +1,3 @@
-// Robots.jsx — Route: /robots · "Robot Live Control" (single robot).
-// Full-width robot card (status + wide battery bar), live Pharaonic map, and 3 controls: Pause · Play · Send to Charging.
-// State lives in src/hooks/useRobotSim.js and is saved in localStorage, so a refresh keeps everything.
 import { Navigate, useNavigate } from "react-router-dom";
 import { LuMapPin } from "react-icons/lu";
 import DashboardLayout from "../components/layout/DashboardLayout";
@@ -15,11 +12,17 @@ function batteryLevel(p) { return p >= 60 ? "high" : p >= 20 ? "mid" : "low"; }
 export default function Robots() {
   const navigate = useNavigate();
   const session = getSession();
-  const { status, battery, markerRef, pause, play, charge } = useRobotSim();
+  
+  const robotSim = useRobotSim();
+  const { status, battery, markerRef, pause, play, charge } = robotSim;
+  const connected = robotSim.connected || false;
 
   if (!session) return <Navigate to="/login" replace />;
 
-  const handleLogout = () => { logout(); window.location.assign(`${import.meta.env.BASE_URL}login`); };
+  const handleLogout = () => { 
+    logout(); 
+    window.location.assign(`${import.meta.env.BASE_URL}login`); 
+  };
 
   const moving = status === "tour" || status === "returning";
   const controls = [
@@ -38,11 +41,22 @@ export default function Robots() {
         </header>
 
         <div className="rlc__grid">
-          {/* ===== Robot card (full width) ===== */}
+          {/* ===== Robot card ===== */}
           <article className={`rlc-card rlc-card--${status} reveal`} style={{ "--i": 1 }}>
             <div className="rlc-card__body">
               <div className="rlc-card__top">
-                <h2 className="rlc-card__name">{ROBOT.name}</h2>
+                <h2 
+                  className="rlc-card__name" 
+                  style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "10px" }} 
+                  onClick={() => navigate(`/robots/${ROBOT.id}`)}
+                >
+                  {ROBOT.name}
+                  <span 
+                    className={`rlc-esp-dot ${connected ? "rlc-esp-dot--on" : "rlc-esp-dot--off"}`}
+                    title={connected ? "ESP32 Connected" : "ESP32 Offline"} 
+                  />
+                </h2>
+
                 <button type="button" className="rlc-card__status" onClick={() => navigate(`/robots/${ROBOT.id}`)}>
                   <StatusCheckIcon className="rlc-card__status-icon" />
                   <span>{liveStatusLabels[status]}</span>
@@ -51,9 +65,12 @@ export default function Robots() {
                   </svg>
                 </button>
               </div>
+
               <div className={`rlc-card__battery rlc-card__battery--${batteryLevel(battery)}`}>
                 <BatteryBoltIcon className="rlc-card__battery-icon" />
-                <div className="rlc-card__bar"><div className="rlc-card__fill" style={{ width: `${battery}%` }} /></div>
+                <div className="rlc-card__bar">
+                  <div className="rlc-card__fill" style={{ width: `${battery}%` }} />
+                </div>
                 <span className="rlc-card__pct">{battery}%</span>
               </div>
             </div>
@@ -65,7 +82,9 @@ export default function Robots() {
               <LuMapPin className="rlc-live__pin" /> Live Location
               <span className={`rlc-live__tag rlc-live__tag--${status}`}>{liveStatusLabels[status]}</span>
             </h2>
-            <div className="rlc-live__map"><RobotMap markerRef={markerRef} status={status} /></div>
+            <div className="rlc-live__map">
+              <RobotMap markerRef={markerRef} status={status} />
+            </div>
           </section>
 
           {/* ===== Robot Controls ===== */}
