@@ -10,13 +10,15 @@ const ESP32_IP   = "192.168.4.1";
 const WS_URL     = `ws://${ESP32_IP}/ws`;
 const RECONNECT  = 2000;   // ms before retrying connection
 // ─── Simulation fallback (used when ESP32 is offline) ──────────────
-const KEY = "athar.robot.v2";
+const KEY = "athar.robot.v3";
 const SPEED = 70;
 const RETURN_SPEED = 130;
-const pts = [...ROUTE, ROUTE[0]];
+const TURN_SECONDS = 2;   // short pause at the end of the track
+// OPEN track: dock (s = 0, left) -> end of the track (s = LENGTH, right)
+const pts = ROUTE;
 const cum = [0];
 for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y));
-export const LOOP = cum[cum.length - 1];
+export const LENGTH = cum[cum.length - 1];
 const DOCK_S = 0;
 const STOP_S = STOPS.map((st) => {
   let best = 0, bd = Infinity;
@@ -29,7 +31,7 @@ const STOP_S = STOPS.map((st) => {
   return best;
 });
 export function pointAt(s) {
-  const d = ((s % LOOP) + LOOP) % LOOP;
+  const d = Math.max(0, Math.min(LENGTH, s));
   let i = 1;
   while (i < cum.length - 1 && cum[i] < d) i++;
   const t = (d - cum[i - 1]) / (cum[i] - cum[i - 1] || 1);
@@ -39,9 +41,9 @@ export function pointAt(s) {
 function load() {
   try {
     const v = JSON.parse(localStorage.getItem(KEY));
-    if (v && typeof v.s === "number") return v;
+    if (v && typeof v.s === "number") return { dir: 1, ...v };
   } catch { /* ignore */ }
-  return { status: "tour", s: 0, battery: 68 };
+  return { status: "tour", s: 0, dir: 1, battery: 68 };
 }
 // ─── Shared state ──────────────────────────────────────────────────
 const sim = load();
@@ -122,6 +124,7 @@ function connectESP() {
              const mapped = map[data.status] || sim.status;
         // If charging flag is on, override to charging
         if (data.charging) {
+          sim.toCharge = false;
           sim.status = "charging";
         } else {
           sim.status = mapped;
@@ -163,15 +166,18 @@ function start() {
         if (wait > 0) wait -= dt;
         else {
           const prev = sim.s;
-          let next = prev + SPEED * dt;
-          const hit = STOP_S.find((st) => prev < st - 0.01 && next >= st);
+          let next = prev + sim.dir * SPEED * dt;
+          // stop next to each showcase only on the way OUT (left -> right); on the way back they are skipped
+          const hit = sim.dir > 0 ? STOP_S.find((st) => prev < st - 0.01 && next >= st) : undefined;
           if (hit !== undefined) { next = hit; wait = STOP_SECONDS; }
-          sim.s = next >= LOOP ? 0 : next;
+          // end of the track (right) -> turn around and come back; dock (left) -> go again
+          if (next >= LENGTH) { next = LENGTH; sim.dir = -1; wait = Math.max(wait, TURN_SECONDS); }
+          else if (next <= 0) { next = 0; sim.dir = 1; wait = Math.max(wait, TURN_SECONDS); }
+          sim.s = next;
         }
       } else if (sim.status === "returning") {
-        const back = sim.s <= LOOP - sim.s;
-        sim.s += (back ? -1 : 1) * RETURN_SPEED * dt;
-        if ((back && sim.s <= 0) || (!back && sim.s >= LOOP)) { sim.s = DOCK_S; setStatus("charging"); }
+        sim.s -= RETURN_SPEED * dt;   // always back along the same track to the dock
+        if (sim.s <= 0) { sim.s = DOCK_S; sim.dir = 1; sim.toCharge = false; setStatus("charging"); }
       }
     }
     frameListeners.forEach((f) => f(pointAt(sim.s)));
@@ -184,7 +190,7 @@ function start() {
       if (sim.status === "tour") sim.battery = Math.max(0, sim.battery - 0.3);
       else if (sim.status === "returning") sim.battery = Math.max(0, sim.battery - 0.2);
       else if (sim.status === "charging") sim.battery = Math.min(100, sim.battery + 0.35);
-      if (sim.status === "tour" && sim.battery <= 15) setStatus("returning");
+      if (sim.status === "tour" && sim.battery <= 15) { sim.toCharge = true; setStatus("returning"); }
     }
     publish(); save();
   }, 1500);
@@ -199,17 +205,22 @@ export const robotStore = {
   subscribeTelemetry(l) { start(); telemetryListeners.add(l); return () => telemetryListeners.delete(l); },
   getTelemetrySnapshot: () => telemetrySnapshot,
   // Commands — send to ESP32 if connected, otherwise do local simulation
+  // "Send to Charging" has priority: if it was pressed and the robot was paused before reaching the dock,
+  // Play continues to the dock (it does NOT go back to the tour).
   pause() {
     if (!sendToESP({ action: "STOP" })) {
       if (sim.status === "tour" || sim.status === "returning") setStatus("paused");
     }
   },
     play() {
-    if (!sendToESP({ action: "FORWARD" })) {
-      if (sim.status === "paused" || sim.status === "charging") { wait = 0; setStatus("tour"); }
+    const goCharge = sim.toCharge && sim.status !== "charging";
+    if (!sendToESP({ action: goCharge ? "CHARGE" : "FORWARD" })) {
+      if (sim.status === "paused" && goCharge) { setStatus("returning"); }
+      else if (sim.status === "paused" || sim.status === "charging") { wait = 0; sim.toCharge = false; if (sim.status === "charging") { sim.s = DOCK_S; sim.dir = 1; } setStatus("tour"); }
     }
   },
   charge() {
+    if (sim.status === "tour" || sim.status === "paused") sim.toCharge = true;
     if (!sendToESP({ action: "CHARGE" })) {
       if (sim.status === "tour" || sim.status === "paused") setStatus("returning");
     }

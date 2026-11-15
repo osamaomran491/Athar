@@ -853,6 +853,35 @@
   color: var(--d-ink);
 }
 
+.robot-status-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.robot-esp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.robot-esp-dot--on {
+  background: #35a875;
+  box-shadow: 0 0 8px #35a875;
+  animation: robotEspPulse 2s ease infinite;
+}
+
+.robot-esp-dot--off {
+  background: #8d8987;
+  opacity: 0.5;
+}
+
+@keyframes robotEspPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px #35a875; }
+  50% { opacity: 0.5; box-shadow: 0 0 16px #35a875; }
+}
+
 .robot-status-state {
   display: flex;
   align-items: center;
@@ -875,6 +904,18 @@
 
 .robot-status-state.returning {
   color: #4388bd;
+}
+
+.robot-status-state.offline {
+  color: #8d8987;
+}
+
+.robot-status-row + .robot-status-row {
+  border-top: 1px solid var(--d-line);
+}
+
+.battery-icon--off {
+  color: #8d8987;
 }
 
 .robot-arrow {

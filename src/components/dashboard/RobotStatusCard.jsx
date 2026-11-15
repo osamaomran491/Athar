@@ -16,6 +16,12 @@ export default function RobotStatusCard({
     robotStore.getSnapshot
   );
 
+  // ESP32 connection (same dot as Robot Live Control)
+  const { connected } = useSyncExternalStore(
+    robotStore.subscribeTelemetry,
+    robotStore.getTelemetrySnapshot
+  );
+
   return (
     <section
       className={`glass-card robot-panel ${className}`}
@@ -26,7 +32,12 @@ export default function RobotStatusCard({
       </h2>
 
       <div className="robot-list">
-        {robots.map((robot) => (
+        {robots.map((robot) => {
+          // RoboGuide 1 = live robot · robots flagged `offline` (not built yet) are always Offline
+          const st = robot.offline ? "offline" : status;
+          const pct = robot.offline ? 0 : battery;
+          const espOn = !robot.offline && connected;
+          return (
           <button
             key={robot.id}
             className="robot-status-row"
@@ -36,33 +47,38 @@ export default function RobotStatusCard({
             <div className="robot-status-header">
               <span className="robot-status-name">
                 {robot.name}
+                <span
+                  className={`robot-esp-dot ${espOn ? "robot-esp-dot--on" : "robot-esp-dot--off"}`}
+                  title={espOn ? "ESP32 Connected" : "ESP32 Offline"}
+                />
               </span>
 
-              <span className={`robot-status-state ${status}`}>
+              <span className={`robot-status-state ${st}`}>
                 <span className="status-dot">●</span>
-                {liveStatusLabels[status] || "Unknown"}
+                {liveStatusLabels[st] || "Unknown"}
                 <span className="robot-arrow">›</span>
               </span>
             </div>
 
             <div className="robot-battery-row">
-              <span className="battery-icon">▰</span>
+              <span className={`battery-icon ${robot.offline ? "battery-icon--off" : ""}`}>▰</span>
 
               <div className="battery-track">
                 <div
                   className="battery-fill"
                   style={{
-                    width: `${battery}%`
+                    width: `${pct}%`
                   }}
                 />
               </div>
 
               <span className="battery-value">
-                {battery}%
+                {robot.offline ? "--" : `${pct}%`}
               </span>
             </div>
           </button>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

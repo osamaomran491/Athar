@@ -1,7 +1,7 @@
 // RobotMap.jsx — live museum map (Pharaonic style) built from the floor plan in the_Ground.pdf.
 import { WALLS, WALL_BOTTOM, Monuments, SHOWCASES, ROUTE } from "../../data/robotsData";
 
-const routeD = "M" + ROUTE.map((p) => `${p.x},${p.y}`).join(" L") + " Z";
+const routeD = "M" + ROUTE.map((p) => `${p.x},${p.y}`).join(" L");
 const dock = ROUTE.find((p) => p.dock);
 
 function Ankh({ x, y, s = 1 }) {
@@ -12,7 +12,7 @@ function Ankh({ x, y, s = 1 }) {
   );
 }
 
-export default function RobotMap({ markerRef, status }) {
+export default function RobotMap({ markerRef, status, hideRobot = false }) {
   return (
     <svg className={`rmap rmap--${status}`} viewBox="0 0 1345 896" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Live robot location map">
       <defs>
@@ -60,7 +60,7 @@ export default function RobotMap({ markerRef, status }) {
       </g>
 
       {/* the robot (moved directly through the ref → smooth) */}
-      <g ref={markerRef} className="rmap__robot">
+      <g ref={markerRef} className="rmap__robot" style={hideRobot ? { display: "none" } : undefined}>
         <circle className="rmap__pulse" r="22" />
         <circle r="17" fill="var(--m-gold)" stroke="#fff" strokeWidth="4" />
         <path d="M-8 3 Q0 -9 8 3 Q0 10 -8 3Z M0 -1 V3" fill="#fff" stroke="none" />

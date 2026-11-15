@@ -66,7 +66,7 @@
 
 /* ---------- Robot card (full width) ---------- */
 .rlc-card {
-  grid-column: 1 / -1;
+  grid-column: span 1;   /* two cards side by side, 1 column each (like the design) */
   display: flex;
   height: 130px;
   background: var(--r-card);
@@ -83,7 +83,7 @@
 .rlc-card__media { flex: 0 0 114px; display: grid; place-items: center; }
 .rlc-card__media img { max-width: 80px; max-height: 100px; object-fit: contain; }
 
-.rlc-card__body { flex: 1; min-width: 0; padding: 20px 36px 0; }
+.rlc-card__body { flex: 1; min-width: 0; padding: 20px 24px 0; }
 
 .rlc-card__top { display: flex; align-items: center; justify-content: space-between; }
 .rlc-card__name {
@@ -138,6 +138,12 @@
 .rlc-card__pct { min-width: 44px; text-align: right; color: var(--r-text); }
 .rlc-card--returning .rlc-card__status { color: var(--r-gold); }
 .rlc-card--paused .rlc-card__status { color: var(--r-standby); }
+.rlc-card--offline .rlc-card__status { cursor: inherit; }
+.rlc-card--offline .rlc-card__name { color: var(--r-standby); }
+.rlc-card:focus-visible { outline: 2px solid var(--r-select); outline-offset: 2px; }
+.rlc-controls__who { margin-top: 4px; font-size: 14px; color: var(--r-sub); }
+.rlc-live__tag--offline { color: var(--r-standby); background: rgba(105,100,95,.12); }
+.rlc-card__battery--off, .rlc-card__battery--off .rlc-card__pct { color: var(--r-standby); }
 
 /* map */
 .rlc-live__tag { margin-left: auto; font-size: 14px; font-weight: 600; padding: 4px 14px; border-radius: 99px; background: rgba(181,123,41,.12); color: var(--r-gold); }
@@ -201,6 +207,7 @@
   .rlc { padding-right: 32px; }
   .rlc__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-left: 0; row-gap: 24px; }
   .rlc-live, .rlc-controls { grid-column: 1 / -1; }
+  .rlc-card { grid-column: span 1; }
   .rlc-panel { min-height: 0; }
   .rlc-live { min-height: 360px; }
   .rlc-controls { padding: 24px 24px 28px; border-radius: 16px; }

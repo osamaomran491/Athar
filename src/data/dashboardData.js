@@ -24,6 +24,7 @@ export const stats = [
 // Robot list. status is one of: "tour" | "charging" | "standby" (leave it null until it is connected)
 export const robots = [
   { id: 1, name: "RoboGuide 1", status: "Offline" },
+  { id: 2, name: "RoboGuide 2", status: "Offline", offline: true }, // not built yet -> always Offline
 ];
 
 // Text shown inside each status badge
