@@ -1,0 +1,15 @@
+$kind: http-request
+url: https://dodge-bouncy-dominion.ngrok-free.dev/api/auth/register
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"name\":\"menna\",\r
+
+    \  \"email\": \"osama3.test@example.com\",\r
+
+    \  \"password\": \"Test12388\"\r
+
+    }"
+order: 3000

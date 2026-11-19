@@ -1,4 +1,3 @@
-
 const USERS_KEY = "Athar_users";
 const SESSION_KEY = "Athar_session";
 const OTP_KEY = "Athar_reset_otp";
@@ -12,6 +11,28 @@ export class AuthError extends Error {
     super(message);
     this.field = field; 
   }
+}
+
+const API_URL = import.meta.env.VITE_API_URL;
+
+/** بيبعت طلب للـ API، ولو السيرفر رد بخطأ بيحوّله لـ AuthError */
+async function api(path, { field = "email", ...options } = {}) {
+  let res;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new AuthError(field, "Can't reach the server. Please try again");
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new AuthError(field, data.message || "Something went wrong");
+  return data;
 }
 
 /* ---------- helpers ---------- */
@@ -30,7 +51,7 @@ async function hash(text) {
 }
 
 function saveSession(user, remember = true) {
-  const session = { name: user.name, email: user.email, picture: user.picture || null, provider: user.provider };
+  const session = { name: user.name, email: user.email, picture: user.picture || null, provider: user.provider, token: user.token || null };
   localStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
   (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, JSON.stringify(session));
@@ -39,25 +60,23 @@ function saveSession(user, remember = true) {
 
 /* ---------- public API ---------- */
 export async function registerUser({ name, email, password }) {
-  const users = readUsers();
-  const key = normalize(email);
-  if (users.some((u) => u.email === key)) {
-    throw new AuthError("email", "An account with this email already exists");
-  }
-  users.push({ name: name.trim(), email: key, passwordHash: await hash(password), provider: "password" });
-  writeUsers(users);
+  await api("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ name: name.trim(), email: normalize(email), password }),
+    field: "email",
+  });
 }
 
 export async function loginUser({ email, password, remember }) {
-  const user = readUsers().find((u) => u.email === normalize(email));
-  if (!user) throw new AuthError("email", "No account found with this email");
-  if (!user.passwordHash) {
-    throw new AuthError("password", "This account uses Google. Please use “Login with Google”");
-  }
-  if (user.passwordHash !== (await hash(password))) {
-    throw new AuthError("password", "Incorrect password. Please try again");
-  }
-  return saveSession(user, remember);
+  const data = await api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email: normalize(email), password }),
+    field: "password",
+  });
+  return saveSession(
+    { name: data.user.name, email: data.user.email, provider: "password", token: data.token },
+    remember
+  );
 }
 
 /** profile = { name, email, picture }  */
@@ -137,3 +156,5 @@ export function logout() {
   localStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
 }
+
+export const getToken = () => getSession()?.token || null;
