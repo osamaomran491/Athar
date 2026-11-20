@@ -272,25 +272,32 @@ export function calculateDashboardStats(bookings = []) {
     ];
   }
 
-  // Visitors: unique visitors count
-  const uniqueVisitors = new Set(bookings.map((b) => b.visitor.trim().toLowerCase())).size;
+  // نحسب فقط الرحلات المؤكدة (Confirmed) وغير المسترجعة
+  const confirmedBookings = bookings.filter(
+    (b) => b.status === "confirmed" && b.paymentStatus !== "refunded"
+  );
 
-  // Total bookings count
-  const totalBookings = bookings.length;
+  // Visitors: عدد الزوار الفريدين للرحلات المؤكدة
+  const uniqueVisitors = new Set(
+    confirmedBookings.map((b) => b.visitor.trim().toLowerCase())
+  ).size;
 
-  // Revenue: total of non-cancelled/refunded bookings
-  const revenue = bookings.reduce((sum, b) => {
-    if (b.status === "cancelled" || b.paymentStatus === "refunded") return sum;
-    return sum + (Number(b.totalPrice) || 0);
-  }, 0);
+  // Total Bookings: إجمالي عدد الرحلات المؤكدة
+  const totalConfirmed = confirmedBookings.length;
 
-  // Compare first half to second half to give a dynamic realistic % change
-  const half = Math.floor(bookings.length / 2);
-  const recent = bookings.slice(0, half);
-  const older = bookings.slice(half);
+  // Revenue: مجموع مبالغ الرحلات المؤكدة فقط
+  const revenue = confirmedBookings.reduce(
+    (sum, b) => sum + (Number(b.totalPrice) || 0),
+    0
+  );
 
-  const recentRev = recent.reduce((s, b) => (b.status !== "cancelled" ? s + (Number(b.totalPrice) || 0) : s), 0);
-  const olderRev = older.reduce((s, b) => (b.status !== "cancelled" ? s + (Number(b.totalPrice) || 0) : s), 0);
+  // مقارنة النصف الأول بالنصف الثاني لحساب نسبة التغيير
+  const half = Math.floor(confirmedBookings.length / 2);
+  const recent = confirmedBookings.slice(0, half);
+  const older = confirmedBookings.slice(half);
+
+  const recentRev = recent.reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
+  const olderRev = older.reduce((s, b) => s + (Number(b.totalPrice) || 0), 0);
 
   const pct = (r, o) => {
     if (o === 0) return r > 0 ? "+100%" : "+0%";
@@ -308,7 +315,7 @@ export function calculateDashboardStats(bookings = []) {
     {
       id: "bookings",
       label: "Total Bookings",
-      value: totalBookings.toLocaleString(),
+      value: totalConfirmed.toLocaleString(),
       change: pct(recent.length, older.length),
     },
     {
