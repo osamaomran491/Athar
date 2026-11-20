@@ -1,9 +1,11 @@
+import { useEffect, useState, useCallback } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/layout/DashboardLayout";
 import StatCard from "../components/dashboard/StatCard";
 import RobotStatusCard from "../components/dashboard/RobotStatusCard";
-import { robots, stats } from "../data/dashboardData";
+import { robots, stats as defaultStats } from "../data/dashboardData";
 import { getSession, logout } from "../services/authService";
+import { fetchBookings, calculateDashboardStats } from "../services/bookingService";
 
 // "Good Morning" / "Good Afternoon" / "Good Evening" depending on the hour
 function getGreeting() {
@@ -16,6 +18,30 @@ function getGreeting() {
 export default function Dashboard() {
   const navigate = useNavigate();
   const session = getSession();
+  const [statsData, setStatsData] = useState(defaultStats);
+
+  const loadStats = useCallback(() => {
+    fetchBookings()
+      .then(({ list }) => {
+        const computed = calculateDashboardStats(list);
+        setStatsData(computed);
+      })
+      .catch(() => {
+        // Fallback to default
+      });
+  }, []);
+
+  useEffect(() => {
+    loadStats();
+    const handleUpdate = () => loadStats();
+    window.addEventListener("athar_bookings_updated", handleUpdate);
+    window.addEventListener("focus", handleUpdate);
+    return () => {
+      window.removeEventListener("athar_bookings_updated", handleUpdate);
+      window.removeEventListener("focus", handleUpdate);
+    };
+  }, [loadStats]);
+
   if (!session) return <Navigate to="/login" replace />;
 
   const firstName = session.name?.split(" ")[0] || "Admin";
@@ -33,7 +59,7 @@ export default function Dashboard() {
       </header>
 
       <section className="dash__stats">
-        {stats.map((stat, index) => (
+        {statsData.map((stat, index) => (
           // the wrapper plays the fade-in (.reveal), the card inside plays the hover lift
           <div key={stat.id} className="reveal" style={{ "--i": index + 1 }}>
             <StatCard
@@ -45,10 +71,10 @@ export default function Dashboard() {
         ))}
       </section>
 
-     <RobotStatusCard
-       robots={robots}
-       className="reveal"
-       style={{ "--i": 4 }}
+      <RobotStatusCard
+        robots={robots}
+        className="reveal"
+        style={{ "--i": 4 }}
       />
     </DashboardLayout>
   );
