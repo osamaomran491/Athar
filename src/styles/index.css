@@ -9,3 +9,4 @@
 
 @import "./robots.css";   /* Robot Live Control page */
 @import "./bookings.css"; /* Booking Management page */
+@import "./moderators.css"; /* Moderators page (owner only) */

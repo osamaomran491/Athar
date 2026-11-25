@@ -17,7 +17,23 @@ import { getToken } from "./authService";
 const API_URL = import.meta.env.VITE_API_URL;
 const BASE = "/api/moderators";
 const DEMO_KEY = "Athar_moderators_demo";
+const PERMS_KEY = "Athar_perms"; // { email: [permissions] }
 
+function saveLocalPerms(email, permissions) {
+  try {
+    const map = JSON.parse(localStorage.getItem(PERMS_KEY) || "{}");
+    map[normalizeEmail(email)] = permissions;
+    localStorage.setItem(PERMS_KEY, JSON.stringify(map));
+  } catch {}
+}
+
+export function getDemoPermissions(email) {
+  try {
+    const map = JSON.parse(localStorage.getItem(PERMS_KEY) || "{}");
+    const p = map[normalizeEmail(email)];
+    return Array.isArray(p) ? p : null;
+  } catch { return null; }
+}
 export class ModeratorError extends Error {
   constructor(message, { field = null, status = 0 } = {}) {
     super(message);
@@ -68,13 +84,14 @@ export function normalizeModerator(raw = {}) {
   const status = String(pick(raw, ["status"]) || "").toLowerCase();
   const active = raw.active ?? raw.isActive ?? (status ? status === "active" : true);
   return {
-    id: String(pick(raw, ["id", "_id", "userId"]) ?? normalizeEmail(raw.email)),
-    name: pick(raw, ["name", "fullName"]) || "—",
-    email: normalizeEmail(raw.email),
-    role: pick(raw, ["role"]) || "moderator",
-    active: !!active,
-    createdAt: pick(raw, ["createdAt", "created_at", "addedAt"]),
-    lastLogin: pick(raw, ["lastLogin", "last_login", "lastLoginAt"]),
+    id:          String(pick(raw, ["id", "_id", "userId"]) ?? normalizeEmail(raw.email)),
+    name:        pick(raw, ["name", "fullName"]) || "—",
+    email:       normalizeEmail(raw.email),
+    role:        pick(raw, ["role"]) || "moderator",
+    active:      !!active,
+    permissions: Array.isArray(raw.permissions) ? raw.permissions : null, // ← أضف السطر ده
+    createdAt:   pick(raw, ["createdAt", "created_at", "addedAt"]),
+    lastLogin:   pick(raw, ["lastLogin", "last_login", "lastLoginAt"]),
   };
 }
 
@@ -100,15 +117,15 @@ export async function fetchModerators() {
   }
 }
 
-export async function addModerator({ name, email, password }, { demo = false } = {}) {
-  const payload = { name: name.trim(), email: normalizeEmail(email), password };
-
+export async function addModerator({ name, email, password, permissions }, { demo = false } = {}) {
+  const payload = { name: name.trim(), email: normalizeEmail(email), password, permissions };
+if (Array.isArray(permissions)) saveLocalPerms(email, permissions);
   if (demo) {
     const list = readDemo();
     if (list.some((m) => m.email === payload.email)) {
       throw new ModeratorError("This email already has access", { field: "email" });
     }
-    const created = { id: `demo-${Date.now()}`, name: payload.name, email: payload.email, active: true, createdAt: new Date().toISOString() };
+    const created = { id: `demo-${Date.now()}`, name: payload.name, email: payload.email, active: true, permissions: payload.permissions ?? null, createdAt: new Date().toISOString() };
     writeDemo([created, ...list]);
     return normalizeModerator(created);
   }
@@ -119,6 +136,7 @@ export async function addModerator({ name, email, password }, { demo = false } =
 
 /** changes can hold name / email / password / active. An empty password is dropped (= keep the old one). */
 export async function updateModerator(id, changes, { demo = false } = {}) {
+  if (changes.email && Array.isArray(changes.permissions)) saveLocalPerms(changes.email, changes.permissions);
   const body = { ...changes };
   if (body.email !== undefined) body.email = normalizeEmail(body.email);
   if (body.name !== undefined) body.name = body.name.trim();

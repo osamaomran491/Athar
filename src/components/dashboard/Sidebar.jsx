@@ -1,9 +1,12 @@
+import { isOwner, getSession } from "../../services/authService";
+import { getDemoPermissions } from "../../services/moderatorService";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LuX, LuChevronLeft, LuChevronRight, LuSun, LuMoon } from "react-icons/lu";
 import Logo from "../ui/Logo";
 import { navItems } from "../../data/dashboardData";
 import { useTheme } from "../../contexts/ThemeContext";
+
 
 export default function Sidebar({ open = false, onClose }) {
   const navigate = useNavigate();
@@ -67,7 +70,17 @@ useEffect(() => {
       <nav className="sidebar__nav" aria-label="Main menu">
         
 
-        {navItems.map(({ label, icon: Icon, to }) => (
+        {navItems
+  .filter((item) => {
+    if (item.ownerOnly) return isOwner();
+    if (isOwner()) return true; // Owner شايف كل حاجة
+    const session = getSession();
+    // اقرا الصلاحيات من session أو من demo storage
+    const perms = session?.permissions ?? getDemoPermissions(session?.email);
+    if (!perms) return true;
+    return perms.includes(item.key);
+  })
+  .map(({ label, icon: Icon, to }) => (
           <div key={label} className="nav-item__wrap">
             <button
               type="button"

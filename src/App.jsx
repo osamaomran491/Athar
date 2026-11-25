@@ -11,6 +11,7 @@ import Robots from "./pages/Robots.jsx";
 import RobotDetails from "./pages/RobotDetails.jsx";
 import Bookings from "./pages/Bookings.jsx";
 import Setting from "./pages/Setting.jsx";
+import Moderators from "./pages/Moderators.jsx";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
       <Route path="/setting" element={<Setting />} />
       {/* any wrong link goes to the dashboard instead of a blank page */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/moderators" element={<Moderators />} />
     </Routes>
   );
 }

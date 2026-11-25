@@ -40,7 +40,7 @@ const writeUsers = (users) => localStorage.setItem(USERS_KEY, JSON.stringify(use
 const normalize = (email) => email.trim().toLowerCase();
 
 function saveSession(user, remember = true) {
-  const session = { name: user.name, email: user.email, picture: user.picture || null, provider: user.provider, token: user.token || null };
+  const session = { name: user.name, email: user.email, picture: user.picture || null, provider: user.provider, token: user.token || null, role: user.role || null, permissions: user.permissions ?? null };
   localStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem(SESSION_KEY);
   (remember ? localStorage : sessionStorage).setItem(SESSION_KEY, JSON.stringify(session));
@@ -62,10 +62,10 @@ export async function loginUser({ email, password, remember }) {
     body: JSON.stringify({ email: normalize(email), password }),
     field: "password",
   });
-  return saveSession(
-    { name: data.user.name, email: data.user.email, provider: "password", token: data.token },
-    remember
-  );
+ return saveSession(
+  { name: data.user.name, email: data.user.email, provider: "password", token: data.token, role: data.user.role, permissions: data.user.permissions ?? null },
+  remember
+);
 }
 
 /** profile = { name, email, picture }  */
@@ -145,3 +145,10 @@ export function logout() {
 }
 
 export const getToken = () => getSession()?.token || null;
+
+export function isOwner(session = getSession()) {
+  if (!session) return false;
+  if (session.role === "owner") return true;
+  const owner = (import.meta.env.VITE_OWNER_EMAIL || "").trim().toLowerCase();
+  return !!owner && (session.email || "").trim().toLowerCase() === owner;
+}

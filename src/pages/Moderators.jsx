@@ -24,6 +24,7 @@ import { getSession, isOwner, logout } from "../services/authService";
 import {
   addModerator,
   fetchModerators,
+  getDemoPermissions,
   ModeratorError,
   removeModerator,
   updateModerator,
@@ -63,15 +64,23 @@ function useModalBehavior(onClose) {
     };
   }, [onClose]);
 }
-
+const PAGES = [
+  { key: "dashboard", label: "Dashboard" },
+  { key: "museums",   label: "Museums"   },
+  { key: "artifacts", label: "Artifacts" },
+  { key: "robots",    label: "Robots"    },
+  { key: "bookings",  label: "Bookings"  },
+  { key: "setting",   label: "Setting"   },
+];
 /* ---------- Add / Edit popup ---------- */
 function MemberModal({ member, demo, onClose, onSaved }) {
   const editing = !!member;
-  const [form, setForm] = useState({
-    name: member?.name || "",
-    email: member?.email || "",
-    password: "",
-  });
+ const [form, setForm] = useState({
+  name: member?.name || "",
+  email: member?.email || "",
+  password: "",
+  permissions: member?.permissions ?? getDemoPermissions(member?.email) ?? PAGES.map((p) => p.key),
+});
   const [errors, setErrors] = useState({});
   const [showPass, setShowPass] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -83,6 +92,13 @@ function MemberModal({ member, demo, onClose, onSaved }) {
     setErrors((er) => ({ ...er, [key]: "" }));
     setFormError("");
   };
+  const togglePage = (key) =>
+  setForm((f) => ({
+    ...f,
+    permissions: f.permissions.includes(key)
+      ? f.permissions.filter((k) => k !== key)
+      : [...f.permissions, key],
+  }));
 
   const validate = () => {
     const found = {};
@@ -166,6 +182,21 @@ function MemberModal({ member, demo, onClose, onSaved }) {
               {errors.password && <em className="mod-err">{errors.password}</em>}
             </label>
             <PasswordChecklist password={form.password} />
+            <div className="mod-permissions">
+              <span>Pages Access</span>
+          <div className="mod-perm-grid">
+             {PAGES.map((page) => (
+                <label key={page.key} className="mod-perm-item">
+                   <input
+          type="checkbox"
+          checked={form.permissions.includes(page.key)}
+          onChange={() => togglePage(page.key)}
+                       />
+                {page.label}
+              </label>
+              ))}
+           </div>
+          </div>
           </div>
 
           {formError && <p className="bk-modal__note bk-modal__note--err" role="alert">{formError}</p>}

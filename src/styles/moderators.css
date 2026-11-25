@@ -52,3 +52,17 @@
   .mod__add { width: 100%; justify-content: center; }
   .mod-box { padding: 24px 20px; }
 }
+/* ---------- Permissions section in modal ---------- */
+.mod-permissions { margin-top: 20px; border-top: 1px solid var(--b-line); padding-top: 16px; display: grid; gap: 10px; }
+.mod-permissions > span { font-size: 14px; font-weight: 600; color: var(--b-title); }
+.mod-perm-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; }
+.mod-perm-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; color: var(--b-text); cursor: pointer;
+  padding: 8px 12px; border-radius: 8px; user-select: none;
+}
+.mod-perm-item:hover { background: var(--b-active); }
+.mod-perm-item input[type="checkbox"] {
+  width: 16px; height: 16px; cursor: pointer;
+  accent-color: var(--b-brown); flex-shrink: 0;
+}
