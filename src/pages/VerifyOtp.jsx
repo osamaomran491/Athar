@@ -3,7 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { LuArrowLeft, LuArrowRight } from "react-icons/lu";
 
 import AuthLayout from "../components/layout/AuthLayout";
-import { sendResetOtp, verifyResetOtp, getDemoOtp, SHOW_DEMO_OTP } from "../services/authService";
+import { sendResetOtp, verifyResetOtp } from "../services/authService";
 import "../styles/otp.css";
 
 const LENGTH = 4;
@@ -26,7 +26,6 @@ export default function VerifyOtp() {
   const [status, setStatus] = useState("idle"); // idle | verifying | success | error
   const [error, setError] = useState("");
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
-  const [demoCode, setDemoCode] = useState(() => getDemoOtp());
 
   const inputs = useRef([]);
   const continueBtn = useRef(null);
@@ -134,9 +133,15 @@ export default function VerifyOtp() {
 
   const resend = async () => {
     if (seconds > 0 || status === "verifying" || status === "success") return;
-    const { code: fresh } = await sendResetOtp({ email });
+    try {
+      await sendResetOtp({ email });
+    } catch (e) {
+      if (!alive.current) return;
+      setStatus("error");
+      setError(e.message || "Couldn't send the code. Try again.");
+      return;
+    }
     if (!alive.current) return;
-    setDemoCode(fresh);
     setSeconds(RESEND_SECONDS);
     setDigits(emptyCode());
     setStatus("idle");
@@ -253,9 +258,6 @@ export default function VerifyOtp() {
           </div>
         )}
 
-        {SHOW_DEMO_OTP && status !== "success" && demoCode && (
-          <p className="otp__demo">Your OTP is <b>{demoCode}</b></p>
-        )}
 
         <Link to="/forgot-password" className="form__back otp__back reveal" style={{ "--i": 4 }}>
           <LuArrowLeft /> Change email
