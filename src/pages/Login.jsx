@@ -9,7 +9,7 @@ import Button from "../components/ui/Button";
 import Divider from "../components/ui/Divider";
 import GoogleButton from "../components/ui/GoogleButton";
 import useForm from "../hooks/useForm";
-import { loginUser } from "../services/authService";
+import { USER_WEB_URL, getDefaultRoute, hasDashboardAccess, loginUser, logout } from "../services/authService";
 import { useLoader } from "../components/loader/LoaderProvider";
 import { isEmailValid } from "../utils/validators";
 
@@ -36,8 +36,14 @@ export default function Login() {
   });
 
   const onValid = async (data) => {
-    await loginUser(data); // لو الباسورد غلط بترمي AuthError("password", ...)
-    await showLoader({ onCovered: () => navigate("/dashboard") }); // شاشة اللوجو ثم الصفحة
+    const session = await loginUser(data); // لو الباسورد غلط بترمي AuthError("password", ...)
+    if (!hasDashboardAccess(session)) {
+      logout();
+      await showLoader({ onCovered: () => window.location.replace(USER_WEB_URL) });
+      return;
+    }
+    const target = getDefaultRoute(session) || "/dashboard";
+    await showLoader({ onCovered: () => navigate(target) }); // شاشة اللوجو ثم الصفحة
   };
 
   return (

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -12,6 +13,33 @@ import RobotDetails from "./pages/RobotDetails.jsx";
 import Bookings from "./pages/Bookings.jsx";
 import Setting from "./pages/Setting.jsx";
 import Moderators from "./pages/Moderators.jsx";
+import {
+  USER_WEB_URL,
+  canAccessPage,
+  getDefaultRoute,
+  getSession,
+  hasDashboardAccess,
+  logout,
+} from "./services/authService.js";
+
+function RedirectToUserWeb() {
+  useEffect(() => {
+    logout();
+    window.location.replace(USER_WEB_URL);
+  }, []);
+  return null;
+}
+
+function RequireAccess({ pageKey, children }) {
+  const session = getSession();
+  if (!session) return <Navigate to="/login" replace />;
+  if (!hasDashboardAccess(session)) return <RedirectToUserWeb />;
+  if (pageKey && !canAccessPage(session, pageKey)) {
+    const fallback = getDefaultRoute(session);
+    return fallback ? <Navigate to={fallback} replace /> : <RedirectToUserWeb />;
+  }
+  return children;
+}
 
 export default function App() {
   return (
@@ -22,16 +50,16 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/verify-otp" element={<VerifyOtp />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/museums" element={<Museums />} />
-      <Route path="/artifacts" element={<Artifacts />} />
-      <Route path="/robots" element={<Robots />} />
-      <Route path="/robots/:id" element={<RobotDetails />} />
-      <Route path="/bookings" element={<Bookings />} />
-      <Route path="/setting" element={<Setting />} />
+      <Route path="/dashboard" element={<RequireAccess pageKey="dashboard"><Dashboard /></RequireAccess>} />
+      <Route path="/museums" element={<RequireAccess pageKey="museums"><Museums /></RequireAccess>} />
+      <Route path="/artifacts" element={<RequireAccess pageKey="artifacts"><Artifacts /></RequireAccess>} />
+      <Route path="/robots" element={<RequireAccess pageKey="robots"><Robots /></RequireAccess>} />
+      <Route path="/robots/:id" element={<RequireAccess pageKey="robots"><RobotDetails /></RequireAccess>} />
+      <Route path="/bookings" element={<RequireAccess pageKey="bookings"><Bookings /></RequireAccess>} />
+      <Route path="/setting" element={<RequireAccess pageKey="setting"><Setting /></RequireAccess>} />
+      <Route path="/moderators" element={<RequireAccess pageKey="moderators"><Moderators /></RequireAccess>} />
       {/* any wrong link goes to the dashboard instead of a blank page */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/moderators" element={<Moderators />} />
     </Routes>
   );
 }

@@ -29,6 +29,7 @@ import {
   removeModerator,
   updateModerator,
 } from "../services/moderatorService";
+import { DASHBOARD_PAGES } from "../utils/permissions";
 import { isEmailValid, isPasswordValid } from "../utils/validators";
 
 const PAGE_SIZE = 6;
@@ -64,23 +65,15 @@ function useModalBehavior(onClose) {
     };
   }, [onClose]);
 }
-const PAGES = [
-  { key: "dashboard", label: "Dashboard" },
-  { key: "museums",   label: "Museums"   },
-  { key: "artifacts", label: "Artifacts" },
-  { key: "robots",    label: "Robots"    },
-  { key: "bookings",  label: "Bookings"  },
-  { key: "setting",   label: "Setting"   },
-];
 /* ---------- Add / Edit popup ---------- */
 function MemberModal({ member, demo, onClose, onSaved }) {
   const editing = !!member;
- const [form, setForm] = useState({
-  name: member?.name || "",
-  email: member?.email || "",
-  password: "",
-  permissions: member?.permissions ?? getDemoPermissions(member?.email) ?? PAGES.map((p) => p.key),
-});
+  const [form, setForm] = useState({
+    name: member?.name || "",
+    email: member?.email || "",
+    password: "",
+    permissions: member?.permissions ?? getDemoPermissions(member?.email) ?? DASHBOARD_PAGES.map((p) => p.key),
+  });
   const [errors, setErrors] = useState({});
   const [showPass, setShowPass] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -92,13 +85,15 @@ function MemberModal({ member, demo, onClose, onSaved }) {
     setErrors((er) => ({ ...er, [key]: "" }));
     setFormError("");
   };
-  const togglePage = (key) =>
-  setForm((f) => ({
-    ...f,
-    permissions: f.permissions.includes(key)
-      ? f.permissions.filter((k) => k !== key)
-      : [...f.permissions, key],
-  }));
+  const togglePage = (key) => {
+    setForm((f) => ({
+      ...f,
+      permissions: f.permissions.includes(key)
+        ? f.permissions.filter((k) => k !== key)
+        : [...f.permissions, key],
+    }));
+    setErrors((er) => ({ ...er, permissions: "" }));
+  };
 
   const validate = () => {
     const found = {};
@@ -108,6 +103,7 @@ function MemberModal({ member, demo, onClose, onSaved }) {
     if ((!editing || form.password) && !isPasswordValid(form.password)) {
       found.password = "Password doesn't meet the rules below";
     }
+    if (form.permissions.length === 0) found.permissions = "Select at least one page";
     return found;
   };
 
@@ -121,7 +117,7 @@ function MemberModal({ member, demo, onClose, onSaved }) {
     setFormError("");
     try {
       if (editing) {
-        await updateModerator(member.id, form, { demo });
+        await updateModerator(member.id, form, { demo, email: member.email });
       } else {
         await addModerator(form, { demo });
       }
@@ -184,19 +180,20 @@ function MemberModal({ member, demo, onClose, onSaved }) {
             <PasswordChecklist password={form.password} />
             <div className="mod-permissions">
               <span>Pages Access</span>
-          <div className="mod-perm-grid">
-             {PAGES.map((page) => (
-                <label key={page.key} className="mod-perm-item">
-                   <input
-          type="checkbox"
-          checked={form.permissions.includes(page.key)}
-          onChange={() => togglePage(page.key)}
-                       />
-                {page.label}
-              </label>
-              ))}
-           </div>
-          </div>
+              <div className="mod-perm-grid">
+                {DASHBOARD_PAGES.map((page) => (
+                  <label key={page.key} className="mod-perm-item">
+                    <input
+                      type="checkbox"
+                      checked={form.permissions.includes(page.key)}
+                      onChange={() => togglePage(page.key)}
+                    />
+                    {page.label}
+                  </label>
+                ))}
+              </div>
+              {errors.permissions && <em className="mod-err">{errors.permissions}</em>}
+            </div>
           </div>
 
           {formError && <p className="bk-modal__note bk-modal__note--err" role="alert">{formError}</p>}
@@ -331,8 +328,8 @@ export default function Moderators() {
     const { action, member } = modal;
     setBusy(true);
     try {
-      if (action === "remove") await removeModerator(member.id, { demo });
-      else await updateModerator(member.id, { active: action === "enable" }, { demo });
+      if (action === "remove") await removeModerator(member.id, { demo, email: member.email });
+      else await updateModerator(member.id, { active: action === "enable" }, { demo, email: member.email });
       setToast(
         action === "remove" ? "Member removed." : action === "enable" ? "Member enabled." : "Member disabled."
       );

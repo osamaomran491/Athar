@@ -1,5 +1,4 @@
-import { isOwner, getSession } from "../../services/authService";
-import { getDemoPermissions } from "../../services/moderatorService";
+import { canAccessPage, getSession } from "../../services/authService";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { LuX, LuChevronLeft, LuChevronRight, LuSun, LuMoon } from "react-icons/lu";
@@ -68,19 +67,12 @@ useEffect(() => {
 
       {/* ===== Nav ===== */}
       <nav className="sidebar__nav" aria-label="Main menu">
-        
-
         {navItems
-  .filter((item) => {
-    if (item.ownerOnly) return isOwner();
-    if (isOwner()) return true; // Owner شايف كل حاجة
-    const session = getSession();
-    // اقرا الصلاحيات من session أو من demo storage
-    const perms = session?.permissions ?? getDemoPermissions(session?.email);
-    if (!perms) return true;
-    return perms.includes(item.key);
-  })
-  .map(({ label, icon: Icon, to }) => (
+          .filter((item) => {
+            const session = getSession();
+            return canAccessPage(session, item.ownerOnly ? "moderators" : item.key);
+          })
+          .map(({ label, icon: Icon, to }) => (
           <div key={label} className="nav-item__wrap">
             <button
               type="button"
