@@ -72,7 +72,7 @@
      "user": {
        "id": "66f1...",
        "name": "Osama Omran",
-       "email": "osamaomran170@gmail.com",
+       "email": "moderator@example.com",
        "role": "moderator",
        "active": true,
        "permissions": ["dashboard", "robots", "bookings"]

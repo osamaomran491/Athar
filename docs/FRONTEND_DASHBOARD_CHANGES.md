@@ -29,7 +29,7 @@
 ```env
 VITE_API_URL=
 
-VITE_OWNER_EMAIL=osamaomran7@gmail.com
+VITE_OWNER_EMAIL=your-owner-email@example.com
 VITE_USER_WEB_URL=https://clarafahem-cell.github.io/athar-museums/?page=museums
 ```
 
