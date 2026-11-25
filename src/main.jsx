@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ThemeProvider> 
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}> 
       <LoaderProvider>
-        <BrowserRouter basename="/Athar">
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <App />
         </BrowserRouter>
       </LoaderProvider>
