@@ -175,7 +175,7 @@ export const getToken = () => getSession()?.token || null;
 export function isOwner(session = getSession()) {
   if (!session) return false;
   if (session.role === "owner") return true;
-  const owner = normalizeEmail(import.meta.env.VITE_OWNER_EMAIL);
+  const owner = normalizeEmail(import.meta.env.VITE_OWNER_EMAIL || "osamaomran7@gmail.com");
   return !!owner && normalizeEmail(session.email) === owner;
 }
 
