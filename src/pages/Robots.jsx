@@ -13,19 +13,19 @@ function batteryLevel(p) { return p >= 60 ? "high" : p >= 20 ? "mid" : "low"; }
 export default function Robots() {
   const navigate = useNavigate();
   const session = getSession();
-  
+
   const robotSim = useRobotSim();
   const { status, battery, markerRef, pause, play, charge } = robotSim;
   const connected = robotSim.connected || false;
-  const [selectedId, setSelectedId] = useState(ROBOTS[0].id); // card clicked -> the controls below act on this robot
+  const [selectedId, setSelectedId] = useState(ROBOTS[0].id);
   const selected = ROBOTS.find((r) => r.id === selectedId) || ROBOTS[0];
   const selOffline = selected.offline;
 
   if (!session) return <Navigate to="/login" replace />;
 
-  const handleLogout = () => { 
-    logout(); 
-    window.location.assign(`${import.meta.env.BASE_URL}login`); 
+  const handleLogout = () => {
+    logout();
+    window.location.assign(`${import.meta.env.BASE_URL}login`);
   };
 
   const moving = status === "tour" || status === "returning";
@@ -38,6 +38,8 @@ export default function Robots() {
 
   return (
     <DashboardLayout userName={session.name || "Admin"} userPicture={session.picture} onLogout={handleLogout}>
+      
+
       <div className="rlc">
         <header className="rlc__head reveal" style={{ "--i": 0 }}>
           <h1 className="rlc__title">Robot Live Control</h1>
@@ -45,15 +47,15 @@ export default function Robots() {
         </header>
 
         <div className="rlc__grid">
-          {/* ===== Robot cards (RoboGuide 01 = live · RoboGuide 02 = offline, not built yet) ===== */}
           {ROBOTS.map((r, idx) => {
             const st = r.offline ? "offline" : status;
             const pct = r.offline ? 0 : battery;
             const online = !r.offline && connected;
+            const isCritical = !r.offline && pct <= 15 && st !== "charging";
             return (
               <article
                 key={r.id}
-                className={`rlc-card rlc-card--${st} ${r.id === selected.id ? "rlc-card--selected" : ""} reveal`}
+                className={`rlc-card rlc-card--${st} ${r.id === selected.id ? "rlc-card--selected" : ""} ${isCritical ? "rlc-card--critical" : ""} reveal`}
                 style={{ "--i": 1 + idx * 0.2 }}
                 role="button" tabIndex={0} aria-pressed={r.id === selected.id}
                 onClick={() => setSelectedId(r.id)}
@@ -95,7 +97,6 @@ export default function Robots() {
             );
           })}
 
-          {/* ===== Live Location ===== */}
           <section className="rlc-live rlc-panel reveal" style={{ "--i": 2 }}>
             <h2 className="rlc-panel__title rlc-live__title">
               <LuMapPin className="rlc-live__pin" /> Live Location
@@ -106,7 +107,6 @@ export default function Robots() {
             </div>
           </section>
 
-          {/* ===== Robot Controls ===== */}
           <section className="rlc-controls rlc-panel reveal" style={{ "--i": 3 }}>
             <h2 className="rlc-panel__title">Robot Controls</h2>
             <p className="rlc-controls__who">{selected.name}{selOffline ? " · Offline" : ""}</p>

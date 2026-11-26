@@ -5,6 +5,7 @@ import "@fontsource/inter/600.css";
 
 import Sidebar from "../dashboard/Sidebar";
 import Topbar from "../dashboard/Topbar";
+import LowBatteryWarning from "../robots/LowBatteryWarning";
 
 export default function DashboardLayout({ userName, userPicture, onLogout, children }) {
   const [navOpen, setNavOpen] = useState(false);
@@ -52,6 +53,7 @@ export default function DashboardLayout({ userName, userPicture, onLogout, child
           navOpen={navOpen}
           onMenuClick={() => setNavOpen((o) => !o)}
         />
+        <LowBatteryWarning />
         <main className="dash__main">{children}</main>
       </div>
     </div>
