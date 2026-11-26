@@ -130,6 +130,16 @@ function connectESP() {
           sim.status = mapped;
         }
       }
+       // Auto-send CHARGE command to real ESP32 once battery drops to <= 10%
+      if (data.percent != null) {
+        if (data.percent <= 10 && !data.charging && sim.status === "tour" && !espAutoChargeSent) {
+          espAutoChargeSent = true;
+          sim.toCharge = true;
+          sendToESP({ action: "CHARGE" });
+        } else if (data.percent > 10 || data.charging) {
+          espAutoChargeSent = false;
+        }
+      }
       publish();
       publishTelemetry();
       save();
@@ -157,6 +167,7 @@ function start() {
   // Try connecting to ESP32 first
   connectESP();
   let last = performance.now();
+  let espAutoChargeSent = false;
   const frame = (now) => {
     const dt = Math.min((now - last) / 1000, 0.1);
     last = now;
@@ -185,12 +196,12 @@ function start() {
   };
   requestAnimationFrame(frame);
     // Battery drain simulation (only when ESP32 is offline)
-  setInterval(() => {
+   setInterval(() => {
     if (!useESP || !espTelemetry.connected) {
       if (sim.status === "tour") sim.battery = Math.max(0, sim.battery - 0.3);
       else if (sim.status === "returning") sim.battery = Math.max(0, sim.battery - 0.2);
       else if (sim.status === "charging") sim.battery = Math.min(100, sim.battery + 0.35);
-      if (sim.status === "tour" && sim.battery <= 15) { sim.toCharge = true; setStatus("returning"); }
+      if (sim.status === "tour" && sim.battery <= 10) { sim.toCharge = true; setStatus("returning"); }
     }
     publish(); save();
   }, 1500);
