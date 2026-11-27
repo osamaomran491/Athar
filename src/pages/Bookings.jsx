@@ -5,7 +5,7 @@
 //  • Table Actions: View / Accept / Reject
 //  • View Modal: Full details + Edit booking fields + Cancel & Refund option
 //  • Export  -> downloads a PDF with ALL rows of the current tab
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Navigate, useSearchParams } from "react-router-dom";
 import {
@@ -48,6 +48,37 @@ const COLUMNS = [
   { key: "type", label: "Type" },
   { key: "status", label: "Status" },
 ];
+const EMPTY_FILTERS = { name: "", type: "all", date: "", timeFrom: "", timeTo: "", status: "all" };
+const TYPE_OPTIONS = [
+  { value: "all", label: "All types" },
+  { value: "Museum", label: "Museum" },
+  { value: "Robot Tour", label: "Robot Tour" },
+];
+const STATUS_OPTIONS = [
+  { value: "all", label: "All statuses" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "pending", label: "Pending" },
+  { value: "cancelled", label: "Cancelled" },
+];
+const pad2 = (n) => String(n).padStart(2, "0");
+const countActiveFilters = (f) =>
+  [f.name.trim(), f.type !== "all", f.date, f.timeFrom || f.timeTo, f.status !== "all"].filter(Boolean).length;
+
+function matchesFilters(b, f) {
+  if (f.name.trim() && !String(b.visitor || "").trim().toLowerCase().startsWith(f.name.trim().toLowerCase())) return false;
+  if (f.type !== "all" && b.type !== f.type) return false;
+  if (f.status !== "all" && b.status !== f.status) return false;
+  if (f.date || f.timeFrom || f.timeTo) {
+    const d = new Date(b.date);
+    if (Number.isNaN(d.getTime())) return false;
+    if (f.date && `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}` !== f.date) return false;
+    const t = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    if (f.timeFrom && t < f.timeFrom) return false;
+    if (f.timeTo && t > f.timeTo) return false;
+  }
+  return true;
+}
+
 const STATUS_ICON = { confirmed: LuCircleCheck, pending: LuClock3, cancelled: LuCircleX };
 
 function SortArrow({ dir }) {
@@ -379,6 +410,89 @@ function DetailsModal({
   );
 }
 
+/* ---------- Filter By (popover) ---------- */
+function FilterMenu({ filters, onChange, onReset, total, shown }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const active = countActiveFilters(filters);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDown = (e) => wrapRef.current && !wrapRef.current.contains(e.target) && setOpen(false);
+    const onKey = (e) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const set = (key) => (e) => onChange({ ...filters, [key]: e.target.value });
+
+  return (
+    <div className="bk-filter" ref={wrapRef}>
+      <button
+        type="button"
+        className={`bk-btn bk-filter__btn ${active ? "bk-filter__btn--on" : ""}`}
+        aria-haspopup="true"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 5h18M6 12h12M10 19h4" />
+        </svg>
+        Filter By
+        {active > 0 && <span className="bk-filter__count">{active}</span>}
+      </button>
+
+      {open && (
+        <div className="bk-filter__panel" role="dialog" aria-label="Filter bookings">
+          <label className="bk-field">
+            <span>Name starts with</span>
+            <input type="text" placeholder="e.g. S or Sar" value={filters.name} onChange={set("name")} />
+          </label>
+
+          <label className="bk-field">
+            <span>Ticket type</span>
+            <select value={filters.type} onChange={set("type")}>
+              {TYPE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+
+          <label className="bk-field">
+            <span>Date</span>
+            <input type="date" value={filters.date} onChange={set("date")} />
+          </label>
+
+          <div className="bk-field">
+            <span>Time</span>
+            <div className="bk-filter__time">
+              <input type="time" aria-label="From time" value={filters.timeFrom} onChange={set("timeFrom")} />
+              <em>to</em>
+              <input type="time" aria-label="To time" value={filters.timeTo} onChange={set("timeTo")} />
+            </div>
+          </div>
+
+          <label className="bk-field">
+            <span>Status</span>
+            <select value={filters.status} onChange={set("status")}>
+              {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+
+          <div className="bk-filter__foot">
+            <span className="bk-filter__result">{shown} of {total} bookings</span>
+            <button type="button" className="bk-btn bk-btn--cancel" onClick={onReset} disabled={!active}>
+              Reset
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---------- Confirm Quick Action Modal ---------- */
 function ConfirmModal({ action, bookingId, onConfirm, onCancel }) {
   const isAccept = action === "accept";
@@ -418,6 +532,7 @@ export default function Bookings() {
   const [details, setDetails] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
   const [updating, setUpdating] = useState(null);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
 
   // Tab persisted in URL query param so refresh preserves the view
   const tab = searchParams.get("tab") || "all";
@@ -448,7 +563,7 @@ export default function Bookings() {
 
   const rows = useMemo(() => {
     const tabDef = TABS.find((t) => t.key === tab) || TABS[0];
-    const list = bookings.filter(tabDef.match);
+    const list = bookings.filter((b) => tabDef.match(b) && matchesFilters(b, filters));
     if (!sort.key) return list;
     const val = (b) => (sort.key === "date" ? new Date(b.date).getTime() || 0 : b[sort.key]);
     return [...list].sort((a, b) => {
@@ -460,7 +575,12 @@ export default function Bookings() {
           : String(x).localeCompare(String(y), undefined, { numeric: true });
       return sort.dir === "asc" ? r : -r;
     });
-  }, [bookings, tab, sort]);
+  }, [bookings, tab, sort, filters]);
+
+  const tabTotal = useMemo(() => {
+    const tabDef = TABS.find((t) => t.key === tab) || TABS[0];
+    return bookings.filter(tabDef.match).length;
+  }, [bookings, tab]);
 
   const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const current = Math.min(page, pages);
@@ -470,6 +590,11 @@ export default function Bookings() {
   const handleLogout = () => {
     logout();
     window.location.assign(`${import.meta.env.BASE_URL}login`);
+  };
+
+  const changeFilters = (next) => {
+    setFilters(next);
+    setPage(1);
   };
 
   const toggleSort = (key) => {
@@ -546,8 +671,19 @@ export default function Bookings() {
           ))}
         </div>
 
+        {/* Filter By */}
+        <div className="bk__toolbar reveal" style={{ "--i": 2 }}>
+          <FilterMenu
+            filters={filters}
+            onChange={changeFilters}
+            onReset={() => changeFilters(EMPTY_FILTERS)}
+            total={tabTotal}
+            shown={rows.length}
+          />
+        </div>
+
         {/* Bookings Table */}
-        <section className="bk-card reveal" style={{ "--i": 2 }}>
+        <section className="bk-card reveal" style={{ "--i": 3 }}>
           <div className="bk-card__scroll">
             <table className="bk-table">
               <thead>
@@ -595,7 +731,7 @@ export default function Bookings() {
                 {state === "ready" && visible.length === 0 && (
                   <tr>
                     <td colSpan={6} className="bk-empty">
-                      No bookings found.
+                      {countActiveFilters(filters) ? "No bookings match the selected filters." : "No bookings found."}
                     </td>
                   </tr>
                 )}
@@ -669,7 +805,7 @@ export default function Bookings() {
         </section>
 
         {/* Footer with Pagination and Export */}
-        <footer className="bk__foot reveal" style={{ "--i": 3 }}>
+        <footer className="bk__foot reveal" style={{ "--i": 4 }}>
           <nav className="bk-pager" aria-label="Pagination">
             <button
               type="button"
@@ -712,7 +848,7 @@ export default function Bookings() {
             disabled={state !== "ready" || rows.length === 0}
             onClick={() =>
               exportBookingsPdf(rows, {
-                filterLabel: TABS.find((t) => t.key === tab).label,
+                filterLabel: TABS.find((t) => t.key === tab).label + (countActiveFilters(filters) ? " (filtered)" : ""),
               })
             }
           >
