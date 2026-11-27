@@ -1,7 +1,7 @@
 // Bookings.jsx
 // Route: /bookings  — "Booking Management" table
 //  • tabs: All Booking / Museum Tickets / Robot Tours (persisted in URL across refresh)
-//  • sortable columns · pagination
+//  • Filter By (name / type / date / time / status) · pagination
 //  • Table Actions: View / Accept / Reject
 //  • View Modal: Full details + Edit booking fields + Cancel & Refund option
 //  • Export  -> downloads a PDF with ALL rows of the current tab
@@ -80,14 +80,6 @@ function matchesFilters(b, f) {
 }
 
 const STATUS_ICON = { confirmed: LuCircleCheck, pending: LuClock3, cancelled: LuCircleX };
-
-function SortArrow({ dir }) {
-  return (
-    <svg className={`bk-sort ${dir === "desc" ? "bk-sort--desc" : ""}`} viewBox="0 0 12 8" aria-hidden="true">
-      <path d="M6 1 11 7H1z" fill="currentColor" />
-    </svg>
-  );
-}
 
 function StatusPill({ status }) {
   const Icon = STATUS_ICON[status] || LuClock3;
@@ -527,7 +519,6 @@ export default function Bookings() {
   const [bookings, setBookings] = useState([]);
   const [demo, setDemo] = useState(false);
   const [state, setState] = useState("loading");
-  const [sort, setSort] = useState({ key: null, dir: "asc" });
   const [page, setPage] = useState(1);
   const [details, setDetails] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
@@ -564,18 +555,8 @@ export default function Bookings() {
   const rows = useMemo(() => {
     const tabDef = TABS.find((t) => t.key === tab) || TABS[0];
     const list = bookings.filter((b) => tabDef.match(b) && matchesFilters(b, filters));
-    if (!sort.key) return list;
-    const val = (b) => (sort.key === "date" ? new Date(b.date).getTime() || 0 : b[sort.key]);
-    return [...list].sort((a, b) => {
-      const x = val(a);
-      const y = val(b);
-      const r =
-        typeof x === "number" && typeof y === "number"
-          ? x - y
-          : String(x).localeCompare(String(y), undefined, { numeric: true });
-      return sort.dir === "asc" ? r : -r;
-    });
-  }, [bookings, tab, sort, filters]);
+    return list;
+  }, [bookings, tab, filters]);
 
   const tabTotal = useMemo(() => {
     const tabDef = TABS.find((t) => t.key === tab) || TABS[0];
@@ -594,13 +575,6 @@ export default function Bookings() {
 
   const changeFilters = (next) => {
     setFilters(next);
-    setPage(1);
-  };
-
-  const toggleSort = (key) => {
-    setSort((s) =>
-      s.key === key ? { key, dir: s.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
-    );
     setPage(1);
   };
 
@@ -689,28 +663,9 @@ export default function Bookings() {
               <thead>
                 <tr>
                   {COLUMNS.map((c) => (
-                    <th
-                      key={c.key}
-                      aria-sort={
-                        sort.key === c.key
-                          ? sort.dir === "asc"
-                            ? "ascending"
-                            : "descending"
-                          : "none"
-                      }
-                    >
-                      <button type="button" onClick={() => toggleSort(c.key)}>
-                        {c.label}
-                        <SortArrow dir={sort.key === c.key ? sort.dir : "asc"} />
-                      </button>
-                    </th>
+                    <th key={c.key}>{c.label}</th>
                   ))}
-                  <th>
-                    <span className="bk-th-plain">
-                      Actions
-                      <SortArrow dir="asc" />
-                    </span>
-                  </th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
