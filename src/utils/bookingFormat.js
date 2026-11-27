@@ -21,6 +21,15 @@ export function formatFullDate(value) {
 /** Booking ID — plain number, no prefix. */
 export const formatId = (id) => `${id}`;
 
+/** Payment methods a visitor can choose. */
+export const PAYMENT_METHODS = [
+  { value: "cash", label: "Cash" },
+  { value: "visa", label: "Visa" },
+  { value: "wallet", label: "Wallet" },
+  { value: "apple_pay", label: "Apple Pay" },
+];
+export const PAYMENT_LABELS = Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label]));
+
 export const STATUS_LABELS = { confirmed: "Confirmed", pending: "Pending", cancelled: "Cancelled" };
 
 /** "createdAt" -> "Created At" */

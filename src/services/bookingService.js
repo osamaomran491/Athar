@@ -3,6 +3,7 @@
 // Supports localStorage persistence so user actions (Accept, Reject, Edit, Cancel & Refund)
 // survive page refresh and dynamically sync with the Dashboard!
 import { getToken } from "./authService";
+import { PAYMENT_METHODS } from "../utils/bookingFormat";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const LIST_PATH = "/api/bookings";
@@ -72,6 +73,17 @@ function normalizeStatus(raw) {
   return "pending";
 }
 
+/** Any backend spelling -> "cash" | "visa" | "wallet" | "apple_pay" | null */
+function normalizePaymentMethod(raw) {
+  const m = String(raw || "").toLowerCase().replace(/[\s-]+/g, "_");
+  if (!m) return null;
+  if (m.includes("apple")) return "apple_pay";
+  if (m.includes("visa") || m.includes("card")) return "visa";
+  if (m.includes("wallet")) return "wallet";
+  if (m.includes("cash")) return "cash";
+  return null;
+}
+
 export function normalizeBooking(raw = {}, index = 0) {
   // Use index + 1 if id is missing or formatted
   const rawId = pick(raw, ["id", "_id", "bookingId", "booking_id"]);
@@ -91,6 +103,7 @@ export function normalizeBooking(raw = {}, index = 0) {
     tickets,
     totalPrice,
     paymentStatus: pick(raw, ["paymentStatus", "payment_status"]) || "paid",
+    paymentMethod: normalizePaymentMethod(pick(raw, ["paymentMethod", "payment_method", "payment.method", "paymentType", "payment_type"])),
     museum: pick(raw, ["museum", "museumName", "museum_name"]) || "Egyptian Museum",
     raw,
   };
@@ -141,6 +154,7 @@ function buildMock() {
       tickets,
       totalPrice,
       paymentStatus: r.status === "cancelled" ? "refunded" : r.status === "pending" ? "unpaid" : "paid",
+      paymentMethod: PAYMENT_METHODS[i % PAYMENT_METHODS.length].value,
       museum: "Egyptian Museum",
       createdAt: new Date(2026, 9, 1 + (i % 12), 14, 30).toISOString(),
     };

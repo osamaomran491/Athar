@@ -32,6 +32,8 @@ import {
   formatFullDate,
   formatId,
   humanizeKey,
+  PAYMENT_LABELS,
+  PAYMENT_METHODS,
   STATUS_LABELS,
 } from "../utils/bookingFormat";
 
@@ -46,6 +48,7 @@ const COLUMNS = [
   { key: "visitor", label: "Visitor" },
   { key: "date", label: "Date & Time" },
   { key: "type", label: "Type" },
+  { key: "paymentMethod", label: "Payment" },
   { key: "status", label: "Status" },
 ];
 const EMPTY_FILTERS = { name: "", type: "all", date: "", timeFrom: "", timeTo: "", status: "all" };
@@ -108,6 +111,7 @@ function DetailsModal({
     date: "",
     type: "Museum",
     status: "confirmed",
+    paymentMethod: "",
     tickets: 1,
     totalPrice: 150,
     phone: "",
@@ -123,6 +127,7 @@ function DetailsModal({
         date: booking.date ? new Date(booking.date).toISOString().slice(0, 16) : "",
         type: booking.type || "Museum",
         status: booking.status || "confirmed",
+        paymentMethod: booking.paymentMethod || "",
         tickets: booking.tickets || 1,
         totalPrice: booking.totalPrice || 150,
         phone: booking.phone || "",
@@ -180,6 +185,7 @@ function DetailsModal({
         date: editForm.date ? new Date(editForm.date).toISOString() : booking.date,
         type: editForm.type,
         status: editForm.status,
+        paymentMethod: editForm.paymentMethod || null,
         tickets: Number(editForm.tickets) || 1,
         totalPrice: Number(editForm.totalPrice) || 0,
         phone: editForm.phone.trim(),
@@ -275,6 +281,7 @@ function DetailsModal({
               <div><span>Type</span><b>{booking.type}</b></div>
               <div><span>Tickets</span><b>{booking.tickets} ticket(s)</b></div>
               <div><span>Total Amount</span><b>{booking.totalPrice} EGP</b></div>
+              <div><span>Payment Method</span><b>{PAYMENT_LABELS[booking.paymentMethod] || "—"}</b></div>
               <div><span>Payment</span><b style={{ textTransform: "capitalize" }}>{booking.paymentStatus || "Paid"}</b></div>
             </div>
 
@@ -334,6 +341,19 @@ function DetailsModal({
                   <option value="confirmed">Confirmed</option>
                   <option value="pending">Pending</option>
                   <option value="cancelled">Cancelled</option>
+                </select>
+              </label>
+
+              <label className="bk-field">
+                <span>Payment Method</span>
+                <select
+                  value={editForm.paymentMethod}
+                  onChange={(e) => setEditForm({ ...editForm, paymentMethod: e.target.value })}
+                >
+                  <option value="">Not set</option>
+                  {PAYMENT_METHODS.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
+                  ))}
                 </select>
               </label>
 
@@ -671,21 +691,21 @@ export default function Bookings() {
               <tbody>
                 {state === "loading" && (
                   <tr>
-                    <td colSpan={6} className="bk-empty">
+                    <td colSpan={7} className="bk-empty">
                       Loading bookings…
                     </td>
                   </tr>
                 )}
                 {state === "error" && (
                   <tr>
-                    <td colSpan={6} className="bk-empty bk-empty--err">
+                    <td colSpan={7} className="bk-empty bk-empty--err">
                       Couldn't load bookings. Please try again.
                     </td>
                   </tr>
                 )}
                 {state === "ready" && visible.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="bk-empty">
+                    <td colSpan={7} className="bk-empty">
                       {countActiveFilters(filters) ? "No bookings match the selected filters." : "No bookings found."}
                     </td>
                   </tr>
@@ -697,6 +717,7 @@ export default function Bookings() {
                       <td>{b.visitor}</td>
                       <td>{formatDateTime(b.date)}</td>
                       <td>{b.type}</td>
+                      <td>{PAYMENT_LABELS[b.paymentMethod] || "—"}</td>
                       <td>
                         <StatusPill status={b.status} />
                       </td>
